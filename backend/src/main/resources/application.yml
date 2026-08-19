@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: payment-system
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/payment_db}
+    username: ${DATABASE_USERNAME:payment_user}
+    password: ${DATABASE_PASSWORD:payment_password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+app:
+  idempotency:
+    ttl: ${IDEMPOTENCY_TTL:86400}
+  bank:
+    mode: ${BANK_MODE:SUCCESS}
+    timeout: ${BANK_TIMEOUT:5000}
+  reconciliation:
+    interval: ${RECONCILIATION_INTERVAL:30000}
