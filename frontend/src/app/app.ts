@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   fetchStats() {
     this.http.get<PaymentStats>('/api/demo/stats').subscribe({
       next: (data) => this.stats = data,
-      error: (err) => console.error('Failed to fetch stats:', err)
+      error: () => {}
     });
   }
 
@@ -54,16 +54,15 @@ export class AppComponent implements OnInit, OnDestroy {
         delayMs: mode === 'TIMEOUT' ? 5000 : 0
       }));
       this.bankMode = mode;
-      this.addTimeline(`🏦 Bank mode updated to ${mode}`);
+      this.addTimeline(`Bank mode updated to ${mode}`);
     } catch (err) {
-      console.error('Failed to set bank mode', err);
-      this.addTimeline(`❌ Failed to update bank mode`);
+      this.addTimeline(`Failed to update bank mode`);
     }
   }
 
   async send10Requests() {
     const idempotencyKey = 'demo-' + Date.now();
-    this.addTimeline(`🚀 Sending 10 concurrent requests with key ${idempotencyKey}`);
+    this.addTimeline(`Sending 10 concurrent requests with key ${idempotencyKey}`);
 
     const reqs = Array.from({ length: 10 }).map(async (_, index) => {
       try {
@@ -79,7 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
 
     await Promise.all(reqs);
-    this.addTimeline(`✅ All 10 responses received. Idempotency verified.`);
+    this.addTimeline(`All 10 responses received. Idempotency verified.`);
     this.fetchStats();
   }
 }

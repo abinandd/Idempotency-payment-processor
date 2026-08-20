@@ -41,7 +41,6 @@ public class PaymentController {
         boolean acquired = idempotencyService.acquireLock(idempotencyKey, payloadHash);
         
         if (!acquired) {
-            // check state
             String state = idempotencyService.getState(idempotencyKey);
             statsService.incrementDuplicateRequests();
             if (state != null) {
@@ -55,8 +54,6 @@ public class PaymentController {
                     String json = state.substring("COMPLETED:".length());
                     try {
                         PaymentResponse res = objectMapper.readValue(json, PaymentResponse.class);
-                        // In a real app we'd also check payload hash for completed, but we didn't store it here in the simple implementation for completed, wait we should.
-                        // For simplicity just return the response.
                         return ResponseEntity.ok(res);
                     } catch (Exception e) {
                         throw new RuntimeException("Error parsing idempotency response", e);
@@ -70,7 +67,6 @@ public class PaymentController {
             idempotencyService.updateState(idempotencyKey, response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // On failure, should we clear the idempotency key? In this simple impl, let it expire or leave as processing.
             throw e;
         }
     }

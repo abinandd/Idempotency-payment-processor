@@ -23,7 +23,6 @@ public class IdempotencyService {
 
     public boolean acquireLock(String idempotencyKey, String payloadHash) {
         String key = "idempotency:" + idempotencyKey;
-        // Atomic SET NX
         Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, "PROCESSING:" + payloadHash, Duration.ofSeconds(ttlSeconds));
         return Boolean.TRUE.equals(acquired);
     }

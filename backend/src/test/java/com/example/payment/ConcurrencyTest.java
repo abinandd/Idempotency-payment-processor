@@ -64,9 +64,6 @@ public class ConcurrencyTest {
         latch.await();
         executor.shutdown();
 
-        // 1 actual success, 9 conflicts (since the rest hit processing state concurrently)
-        // Note: the test could return 2xx for some if they finish fast enough and the others hit COMPLETED state.
-        // We just assert that at least 1 succeeded and total is 10.
         assertTrue(successCount.get() > 0);
         assertEquals(10, successCount.get() + conflictCount.get());
     }

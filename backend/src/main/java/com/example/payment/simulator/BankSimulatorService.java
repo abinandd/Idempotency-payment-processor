@@ -44,8 +44,6 @@ public class BankSimulatorService {
         String bankTxId = UUID.randomUUID().toString();
 
         if ("TIMEOUT".equals(currentMode)) {
-            // In a timeout, the bank might or might not have processed it.
-            // Let's say it did process it but timed out responding.
             transactions.put(bankTxId, PaymentStatus.SUCCESS);
             return new BankResult(null, PaymentStatus.UNKNOWN);
         } else if ("FAILURE".equals(currentMode)) {

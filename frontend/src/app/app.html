@@ -1,26 +1,26 @@
 <div class="dashboard-container">
   <header class="app-header">
-    <h1>💳 Idempotent Payment System Demo</h1>
+    <h1>Idempotent Payment System Demo</h1>
     <p>A demonstration of safely processing payments over an unreliable network</p>
   </header>
 
   <div class="panels-container">
     <div class="panel controls-panel">
-      <h2>🏦 Bank Simulator Controls</h2>
+      <h2>Bank Simulator Controls</h2>
       <div class="mode-status">
         <span class="mode-label">Current Mode:</span>
         <span class="mode-badge" [ngClass]="bankMode.toLowerCase()">{{ bankMode }}</span>
       </div>
       <div class="button-group">
-        <button class="btn btn-outline" (click)="handleSetBankMode('SUCCESS')" [class.active]="bankMode === 'SUCCESS'">✅ Success</button>
-        <button class="btn btn-outline" (click)="handleSetBankMode('FAILURE')" [class.active]="bankMode === 'FAILURE'">❌ Failure</button>
-        <button class="btn btn-outline" (click)="handleSetBankMode('TIMEOUT')" [class.active]="bankMode === 'TIMEOUT'">⏳ Timeout</button>
-        <button class="btn btn-outline" (click)="handleSetBankMode('RANDOM')" [class.active]="bankMode === 'RANDOM'">🎲 Random</button>
+        <button class="btn btn-outline" (click)="handleSetBankMode('SUCCESS')" [class.active]="bankMode === 'SUCCESS'">Success</button>
+        <button class="btn btn-outline" (click)="handleSetBankMode('FAILURE')" [class.active]="bankMode === 'FAILURE'">Failure</button>
+        <button class="btn btn-outline" (click)="handleSetBankMode('TIMEOUT')" [class.active]="bankMode === 'TIMEOUT'">Timeout</button>
+        <button class="btn btn-outline" (click)="handleSetBankMode('RANDOM')" [class.active]="bankMode === 'RANDOM'">Random</button>
       </div>
     </div>
     
     <div class="panel stats-panel">
-      <h2>📊 Live Statistics</h2>
+      <h2>Live Statistics</h2>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-value">{{ stats.totalRequests }}</div>
@@ -43,15 +43,15 @@
   </div>
   
   <div class="panel action-panel">
-    <h2>🚀 Demo Actions</h2>
+    <h2>Demo Actions</h2>
     <p>Simulate a client rapidly retrying the exact same payment request due to a network glitch.</p>
     <button class="btn btn-primary btn-large" (click)="send10Requests()">
-      <span class="icon">🔁</span> SEND 10 IDENTICAL REQUESTS
+      SEND 10 IDENTICAL REQUESTS
     </button>
   </div>
 
   <div class="panel timeline-panel">
-    <h2>📜 Timeline & Logs</h2>
+    <h2>Timeline & Logs</h2>
     <div class="timeline-container">
       <ul class="timeline-list">
         <li *ngFor="let t of timeline" class="timeline-item">

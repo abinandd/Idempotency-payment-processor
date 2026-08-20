@@ -33,8 +33,6 @@ public class ReconciliationService {
                     paymentRepository.save(p);
                 }
             } else {
-                // No bank transaction ID means it timed out before bank returned one, so it likely failed or we don't know
-                // For simulator purposes, let's mark FAILED
                 p.setStatus(PaymentStatus.FAILED);
                 paymentRepository.save(p);
             }
