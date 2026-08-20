@@ -19,14 +19,25 @@ public class GlobalExceptionHandler {
             "message", ex.getMessage()
         ));
     }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+            "timestamp", Instant.now().toString(),
+            "status", 400,
+            "error", "VALIDATION_FAILED",
+            "message", "Invalid request parameters"
+        ));
+    }
     
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        // Log the exception securely here
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
             "timestamp", Instant.now().toString(),
             "status", 500,
             "error", "INTERNAL_SERVER_ERROR",
-            "message", ex.getMessage()
+            "message", "An unexpected error occurred"
         ));
     }
 }

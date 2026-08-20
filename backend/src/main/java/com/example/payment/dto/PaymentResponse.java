@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 
 @Data
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class PaymentResponse {
     private String paymentId;
     private PaymentStatus status;
