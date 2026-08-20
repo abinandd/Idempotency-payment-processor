@@ -27,11 +27,11 @@ public class IdempotencyService {
         return Boolean.TRUE.equals(acquired);
     }
     
-    public void updateState(String idempotencyKey, Object response) {
+    public void updateState(String idempotencyKey, Object response, String payloadHash) {
         try {
             String key = "idempotency:" + idempotencyKey;
             String json = objectMapper.writeValueAsString(response);
-            redisTemplate.opsForValue().set(key, "COMPLETED:" + json, Duration.ofSeconds(ttlSeconds));
+            redisTemplate.opsForValue().set(key, "COMPLETED:" + payloadHash + ":" + json, Duration.ofSeconds(ttlSeconds));
         } catch (Exception e) {
             throw new RuntimeException("Failed to update idempotency state", e);
         }

@@ -51,12 +51,18 @@ public class PaymentController {
                     }
                     return ResponseEntity.status(HttpStatus.CONFLICT).body(PaymentResponse.builder().message("Processing in progress").build());
                 } else if (state.startsWith("COMPLETED:")) {
-                    String json = state.substring("COMPLETED:".length());
-                    try {
-                        PaymentResponse res = objectMapper.readValue(json, PaymentResponse.class);
-                        return ResponseEntity.ok(res);
-                    } catch (Exception e) {
-                        throw new RuntimeException("Error parsing idempotency response", e);
+                    String[] parts = state.substring("COMPLETED:".length()).split(":", 2);
+                    if (parts.length == 2) {
+                        String storedHash = parts[0];
+                        if (!storedHash.equals(payloadHash)) {
+                            throw new IdempotencyException("The idempotency key was already used with a different request payload");
+                        }
+                        try {
+                            PaymentResponse res = objectMapper.readValue(parts[1], PaymentResponse.class);
+                            return ResponseEntity.ok(res);
+                        } catch (Exception e) {
+                            throw new RuntimeException("Error parsing idempotency response", e);
+                        }
                     }
                 }
             }
@@ -64,7 +70,7 @@ public class PaymentController {
         
         try {
             PaymentResponse response = paymentService.processNewPayment(request, idempotencyKey);
-            idempotencyService.updateState(idempotencyKey, response);
+            idempotencyService.updateState(idempotencyKey, response, payloadHash);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             throw e;

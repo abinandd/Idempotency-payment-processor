@@ -1,67 +1,166 @@
-<div class="dashboard-container">
-  <header class="app-header">
-    <h1><i data-lucide="credit-card" class="icon-inline"></i> Idempotent Payment System Demo</h1>
-    <p>A demonstration of safely processing payments over an unreliable network</p>
-  </header>
-
-  <div class="panels-container">
-    <div class="panel controls-panel">
-      <h2><i data-lucide="landmark" class="icon-inline"></i> Bank Simulator Controls</h2>
-      <div class="mode-status">
-        <span class="mode-label">Current Mode:</span>
-        <span class="mode-badge" [ngClass]="bankMode.toLowerCase()">{{ bankMode }}</span>
-      </div>
-      <div class="button-group">
-        <button class="btn btn-outline" (click)="handleSetBankMode('SUCCESS')" [class.active]="bankMode === 'SUCCESS'"><i data-lucide="check-circle" class="icon-btn"></i> Success</button>
-        <button class="btn btn-outline" (click)="handleSetBankMode('FAILURE')" [class.active]="bankMode === 'FAILURE'"><i data-lucide="x-circle" class="icon-btn"></i> Failure</button>
-        <button class="btn btn-outline" (click)="handleSetBankMode('TIMEOUT')" [class.active]="bankMode === 'TIMEOUT'"><i data-lucide="clock" class="icon-btn"></i> Timeout</button>
-        <button class="btn btn-outline" (click)="handleSetBankMode('RANDOM')" [class.active]="bankMode === 'RANDOM'"><i data-lucide="shuffle" class="icon-btn"></i> Random</button>
-      </div>
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <i data-lucide="shield" class="icon-inline"></i>
+      <span>Payment Engine</span>
     </div>
     
-    <div class="panel stats-panel">
-      <h2><i data-lucide="bar-chart-2" class="icon-inline"></i> Live Statistics</h2>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value">{{ stats.totalRequests }}</div>
-          <div class="stat-label">Total API Requests</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ stats.bankCalls }}</div>
-          <div class="stat-label">Actual Bank Calls</div>
-        </div>
-        <div class="stat-card success">
-          <div class="stat-value">{{ stats.successfulPayments }}</div>
-          <div class="stat-label">Successful Payments</div>
-        </div>
-        <div class="stat-card safe">
-          <div class="stat-value">{{ stats.duplicateRequests }}</div>
-          <div class="stat-label">Duplicate Requests Blocked</div>
-        </div>
+    <div class="sidebar-nav">
+      <div class="nav-item" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">
+        <i data-lucide="layout"></i> Overview
+      </div>
+      <div class="nav-item" [class.active]="activeTab() === 'lab'" (click)="setTab('lab')">
+        <i data-lucide="zap"></i> Idempotency Lab
+      </div>
+      <div class="nav-item" [class.active]="activeTab() === 'bank'" (click)="setTab('bank')">
+        <i data-lucide="landmark"></i> Bank Simulator
+      </div>
+      <div class="nav-item" [class.active]="activeTab() === 'timeline'" (click)="setTab('timeline')">
+        <i data-lucide="list"></i> Event Timeline
       </div>
     </div>
-  </div>
-  
-  <div class="panel action-panel">
-    <h2><i data-lucide="zap" class="icon-inline"></i> Demo Actions</h2>
-    <p>Simulate a client rapidly retrying the exact same payment request due to a network glitch.</p>
-    <button class="btn btn-primary btn-large" (click)="send10Requests()">
-      <i data-lucide="send" class="icon-btn"></i> SEND 10 IDENTICAL REQUESTS
-    </button>
-  </div>
 
-  <div class="panel timeline-panel">
-    <h2><i data-lucide="list" class="icon-inline"></i> Timeline & Logs</h2>
-    <div class="timeline-container">
-      <ul class="timeline-list">
-        <li *ngFor="let t of timeline" class="timeline-item">
-          <span class="timeline-dot"></span>
-          <span class="timeline-content">{{ t }}</span>
-        </li>
-        <li *ngIf="timeline.length === 0" class="timeline-empty">
-          No activity yet. Press the button above to simulate requests.
-        </li>
-      </ul>
+    <div class="sidebar-footer">
+      <div class="status-item"><i data-lucide="server" class="icon-small"></i> API: Online</div>
+      <div class="status-item"><i data-lucide="database" class="icon-small"></i> Redis: Connected</div>
+      <div class="status-item"><i data-lucide="database" class="icon-small"></i> Postgres: Connected</div>
+      <div class="env-badge">Dev Env</div>
     </div>
-  </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="topbar-title">Dashboard / {{ activeTab() | titlecase }}</div>
+      <div class="topbar-actions">
+        <div class="system-status"><span class="dot green"></span> ALL SYSTEMS OPERATIONAL</div>
+      </div>
+    </header>
+
+    <div class="content-area">
+      
+      <!-- Tab: Overview -->
+      <div *ngIf="activeTab() === 'overview'">
+        <div class="page-header">
+            <h2>Payment Processing</h2>
+            <p>Real-time idempotency and transaction monitoring</p>
+        </div>
+        
+        <div class="grid-4">
+          <div class="card stat-card">
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value text-mono">{{ stats().totalRequests }}</div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-label">Actual Bank Calls</div>
+            <div class="stat-value text-mono">{{ stats().bankCalls }}</div>
+          </div>
+          <div class="card stat-card success-card">
+            <div class="stat-label">Successful Payments</div>
+            <div class="stat-value text-mono">{{ stats().successfulPayments }}</div>
+          </div>
+          <div class="card stat-card safe-card">
+            <div class="stat-label">Duplicate Requests Blocked</div>
+            <div class="stat-value text-mono">{{ stats().duplicateRequests }}</div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+            <h3>Live Processing Pipeline</h3>
+            <div class="pipeline-viz">
+                <div class="pipe-node">Request<br>Received</div>
+                <div class="pipe-line"></div>
+                <div class="pipe-node">Idempotency<br>Check</div>
+                <div class="pipe-line"></div>
+                <div class="pipe-node">Redis<br>Lock</div>
+                <div class="pipe-line"></div>
+                <div class="pipe-node">Bank<br>Processing</div>
+                <div class="pipe-line"></div>
+                <div class="pipe-node">Database<br>Commit</div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Tab: Idempotency Lab -->
+      <div *ngIf="activeTab() === 'lab'">
+        <div class="page-header">
+            <h2>Idempotency Lab</h2>
+            <p>Simulate concurrent payment requests and observe how duplicate transactions are prevented.</p>
+        </div>
+        
+        <div class="grid-2">
+            <div class="card">
+                <h3>Configuration</h3>
+                <div class="form-group">
+                    <label>Amount (INR)</label>
+                    <input type="number" class="input-dark" [value]="labAmount()" (change)="labAmount.set($any($event.target).value)">
+                </div>
+                <div class="form-group">
+                    <label>Concurrent Requests</label>
+                    <input type="number" class="input-dark" [value]="labRequestCount()" (change)="labRequestCount.set($any($event.target).value)">
+                </div>
+                
+                <button class="btn btn-primary" (click)="runLab()" [disabled]="isProcessing()">
+                    <i data-lucide="zap"></i> SEND IDENTICAL REQUESTS
+                </button>
+            </div>
+            
+            <div class="card">
+                <h3>Live Visualization</h3>
+                <div class="req-list">
+                    <div *ngFor="let r of labRequests()" class="req-item" [ngClass]="r.status">
+                        <span class="text-mono">REQ-0{{ r.index }}</span>
+                        <span class="badge" [ngClass]="r.status">{{ r.status | uppercase }}</span>
+                    </div>
+                    <div *ngIf="labRequests().length === 0" class="empty-state">
+                        Click send to begin simulation.
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Tab: Bank Simulator -->
+      <div *ngIf="activeTab() === 'bank'">
+        <div class="page-header">
+            <h2>Bank Simulator</h2>
+            <p>Control how the simulated banking provider responds.</p>
+        </div>
+        
+        <div class="grid-3">
+            <div class="card mode-card" (click)="handleSetBankMode('SUCCESS')" [class.active]="bankMode() === 'SUCCESS'">
+                <h3><i data-lucide="check-circle" class="icon-inline"></i> SUCCESS</h3>
+                <p>Bank approves the transaction normally.</p>
+            </div>
+            <div class="card mode-card" (click)="handleSetBankMode('FAILURE')" [class.active]="bankMode() === 'FAILURE'">
+                <h3><i data-lucide="x-circle" class="icon-inline"></i> FAILURE</h3>
+                <p>Bank rejects the transaction.</p>
+            </div>
+            <div class="card mode-card" (click)="handleSetBankMode('TIMEOUT')" [class.active]="bankMode() === 'TIMEOUT'">
+                <h3><i data-lucide="clock" class="icon-inline"></i> TIMEOUT</h3>
+                <p>Bank does not respond. Status unknown.</p>
+            </div>
+        </div>
+      </div>
+
+      <!-- Tab: Timeline -->
+      <div *ngIf="activeTab() === 'timeline'">
+        <div class="page-header">
+            <h2>Event Timeline</h2>
+            <p>Engineering-style event logs.</p>
+        </div>
+        
+        <div class="card">
+            <ul class="log-list">
+                <li *ngFor="let t of timeline()" class="text-mono">
+                    > {{ t }}
+                </li>
+                <li *ngIf="timeline().length === 0" class="text-mono opacity-50">
+                    > No events recorded yet...
+                </li>
+            </ul>
+        </div>
+      </div>
+      
+    </div>
+  </main>
 </div>
