@@ -246,3 +246,18 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+.icon-inline {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin-right: 0.4rem;
+  margin-bottom: 0.1rem;
+}
+
+.icon-btn {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  margin-right: 0.2rem;
+}

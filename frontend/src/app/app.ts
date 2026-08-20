@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Subscription } from 'rxjs';
+import { createIcons, CreditCard, Landmark, CheckCircle, XCircle, Clock, Shuffle, BarChart2, Zap, Send, List } from 'lucide';
 
 export interface PaymentStats {
   totalRequests: number;
@@ -17,7 +18,7 @@ export interface PaymentStats {
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy, AfterViewChecked {
   stats: PaymentStats = { totalRequests: 0, successfulPayments: 0, duplicateRequests: 0, bankCalls: 0 };
   bankMode = 'SUCCESS';
   timeline: string[] = [];
@@ -28,6 +29,14 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.fetchStats();
     this.statsInterval = setInterval(() => this.fetchStats(), 2000);
+  }
+
+  ngAfterViewChecked() {
+    createIcons({
+      icons: {
+        CreditCard, Landmark, CheckCircle, XCircle, Clock, Shuffle, BarChart2, Zap, Send, List
+      }
+    });
   }
 
   ngOnDestroy() {
