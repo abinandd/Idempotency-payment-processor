@@ -1,9 +1,9 @@
 <div class="admin-shell">
-  <app-sidebar></app-sidebar>
+  <app-sidebar (tabChange)="onTabChange()"></app-sidebar>
 
   <div class="main-area">
     <!-- White banner header -->
-    <header class="page-banner">
+    <header class="page-banner" #banner>
       <div class="banner-top">
         <div class="banner-copy">
           <p class="banner-eyebrow">Payments Control Room</p>
@@ -29,7 +29,7 @@
     </header>
 
     <!-- Scrollable content -->
-    <div class="content-area">
+    <div class="content-area" #contentArea>
       <app-overview     *ngIf="state.activeTab() === 'overview'"></app-overview>
       <app-lab          *ngIf="state.activeTab() === 'lab'"></app-lab>
       <app-bank-simulator *ngIf="state.activeTab() === 'bank'"></app-bank-simulator>

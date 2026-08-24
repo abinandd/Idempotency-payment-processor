@@ -1,30 +1,22 @@
-import { Component, AfterViewChecked, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
-import { createIcons, CreditCard, Landmark, CheckCircle, XCircle, Clock, Shuffle, BarChart2, Zap, Send, List, Shield, Layout, Settings, Activity, Database, Server } from 'lucide';
+import {
+  createIcons, CreditCard, Landmark, CheckCircle, XCircle, Clock,
+  Shuffle, BarChart2, Zap, Send, List, Shield, Layout, Settings,
+  Activity, Database, Server
+} from 'lucide';
 import { SidebarComponent } from './components/sidebar/sidebar';
 import { OverviewComponent } from './components/overview/overview';
 import { LabComponent } from './components/lab/lab';
 import { BankSimulatorComponent } from './components/bank-simulator/bank-simulator';
 import { TimelineComponent } from './components/timeline/timeline';
 import { PaymentStateService } from './services/payment-state';
+import { AnimationService } from './services/animation.service';
 
 const ICONS = {
-  CreditCard,
-  Landmark,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Shuffle,
-  BarChart2,
-  Zap,
-  Send,
-  List,
-  Shield,
-  Layout,
-  Settings,
-  Activity,
-  Database,
-  Server
+  CreditCard, Landmark, CheckCircle, XCircle, Clock, Shuffle,
+  BarChart2, Zap, Send, List, Shield, Layout, Settings, Activity,
+  Database, Server
 };
 
 const PAGE_COPY: Record<string, { title: string; subtitle: string; badge: string }> = {
@@ -54,32 +46,47 @@ const PAGE_COPY: Record<string, { title: string; subtitle: string; badge: string
   selector: 'app-root',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     UpperCasePipe,
-    SidebarComponent, 
-    OverviewComponent, 
-    LabComponent, 
-    BankSimulatorComponent, 
+    SidebarComponent,
+    OverviewComponent,
+    LabComponent,
+    BankSimulatorComponent,
     TimelineComponent
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class AppComponent implements AfterViewChecked, OnDestroy {
+export class AppComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('banner') bannerRef!: ElementRef<HTMLElement>;
+  @ViewChild('contentArea') contentRef!: ElementRef<HTMLElement>;
 
-  constructor(public state: PaymentStateService) {}
+  constructor(
+    public state: PaymentStateService,
+    private anim: AnimationService
+  ) {}
 
   get pageCopy() {
     return PAGE_COPY[this.state.activeTab()] ?? PAGE_COPY['overview'];
   }
 
-  ngAfterViewChecked() {
-    createIcons({
-      icons: ICONS
-    });
+  ngAfterViewInit() {
+    createIcons({ icons: ICONS });
+    // Animate the banner on first load
+    if (this.bannerRef?.nativeElement) {
+      this.anim.bannerIn(this.bannerRef.nativeElement);
+    }
   }
 
-  ngOnDestroy() {
-    // The service handles cleanup if needed, though it's provided in root
+  /** Called by child components after tab change via (click) */
+  onTabChange() {
+    setTimeout(() => {
+      createIcons({ icons: ICONS });
+      if (this.contentRef?.nativeElement) {
+        this.anim.pageTransition(this.contentRef.nativeElement);
+      }
+    }, 10);
   }
+
+  ngOnDestroy() {}
 }
