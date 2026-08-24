@@ -1,5 +1,7 @@
 package com.example.payment.exception;
 
+import com.example.payment.idempotency.IdempotencyException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,9 +1,9 @@
-package com.example.payment.controller;
+package com.example.payment.demo;
 
-import com.example.payment.dto.BankModeRequest;
-import com.example.payment.dto.DemoStatsResponse;
-import com.example.payment.service.StatsService;
-import com.example.payment.simulator.BankSimulatorService;
+import com.example.payment.bank.BankModeRequest;
+import com.example.payment.stats.DemoStatsResponse;
+import com.example.payment.stats.StatsService;
+import com.example.payment.bank.BankSimulatorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

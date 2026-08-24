@@ -1,11 +1,11 @@
-package com.example.payment.controller;
+package com.example.payment.payment;
 
-import com.example.payment.dto.PaymentRequest;
-import com.example.payment.dto.PaymentResponse;
-import com.example.payment.exception.IdempotencyException;
-import com.example.payment.service.IdempotencyService;
-import com.example.payment.service.PaymentService;
-import com.example.payment.service.StatsService;
+import com.example.payment.payment.PaymentRequest;
+import com.example.payment.payment.PaymentResponse;
+import com.example.payment.idempotency.IdempotencyException;
+import com.example.payment.idempotency.IdempotencyService;
+import com.example.payment.payment.PaymentService;
+import com.example.payment.stats.StatsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;

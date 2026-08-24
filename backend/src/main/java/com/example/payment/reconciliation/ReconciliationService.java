@@ -1,9 +1,9 @@
 package com.example.payment.reconciliation;
 
-import com.example.payment.model.Payment;
-import com.example.payment.model.PaymentStatus;
-import com.example.payment.repository.PaymentRepository;
-import com.example.payment.simulator.BankSimulatorService;
+import com.example.payment.payment.Payment;
+import com.example.payment.payment.PaymentStatus;
+import com.example.payment.payment.PaymentRepository;
+import com.example.payment.bank.BankSimulatorService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

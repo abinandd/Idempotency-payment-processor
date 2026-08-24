@@ -1,6 +1,6 @@
-package com.example.payment.repository;
-import com.example.payment.model.Payment;
-import com.example.payment.model.PaymentStatus;
+package com.example.payment.payment;
+import com.example.payment.payment.Payment;
+import com.example.payment.payment.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;

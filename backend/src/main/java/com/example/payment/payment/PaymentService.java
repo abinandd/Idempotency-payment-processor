@@ -1,11 +1,13 @@
-package com.example.payment.service;
+package com.example.payment.payment;
 
-import com.example.payment.dto.PaymentRequest;
-import com.example.payment.dto.PaymentResponse;
-import com.example.payment.model.Payment;
-import com.example.payment.model.PaymentStatus;
-import com.example.payment.repository.PaymentRepository;
-import com.example.payment.simulator.BankSimulatorService;
+import com.example.payment.stats.StatsService;
+
+import com.example.payment.payment.PaymentRequest;
+import com.example.payment.payment.PaymentResponse;
+import com.example.payment.payment.Payment;
+import com.example.payment.payment.PaymentStatus;
+import com.example.payment.payment.PaymentRepository;
+import com.example.payment.bank.BankSimulatorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

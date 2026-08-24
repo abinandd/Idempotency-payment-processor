@@ -1,7 +1,7 @@
 package com.example.payment;
 
-import com.example.payment.dto.PaymentRequest;
-import com.example.payment.dto.PaymentResponse;
+import com.example.payment.payment.PaymentRequest;
+import com.example.payment.payment.PaymentResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

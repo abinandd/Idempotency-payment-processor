@@ -1,6 +1,6 @@
-package com.example.payment.dto;
+package com.example.payment.payment;
 
-import com.example.payment.model.PaymentStatus;
+import com.example.payment.payment.PaymentStatus;
 import lombok.Builder;
 import lombok.Data;
 import java.math.BigDecimal;

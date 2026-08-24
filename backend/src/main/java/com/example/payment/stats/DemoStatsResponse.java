@@ -1,4 +1,4 @@
-package com.example.payment.dto;
+package com.example.payment.stats;
 import lombok.Data;
 import java.util.concurrent.atomic.AtomicLong;
 

@@ -1,4 +1,4 @@
-package com.example.payment.service;
+package com.example.payment.idempotency;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;

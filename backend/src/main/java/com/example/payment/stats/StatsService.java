@@ -1,7 +1,7 @@
-package com.example.payment.service;
+package com.example.payment.stats;
 import org.springframework.stereotype.Service;
 import java.util.concurrent.atomic.AtomicLong;
-import com.example.payment.dto.DemoStatsResponse;
+import com.example.payment.stats.DemoStatsResponse;
 
 @Service
 public class StatsService {

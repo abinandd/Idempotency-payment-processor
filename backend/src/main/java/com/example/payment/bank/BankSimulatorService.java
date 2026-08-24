@@ -1,6 +1,6 @@
-package com.example.payment.simulator;
+package com.example.payment.bank;
 
-import com.example.payment.model.PaymentStatus;
+import com.example.payment.payment.PaymentStatus;
 import org.springframework.stereotype.Service;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
