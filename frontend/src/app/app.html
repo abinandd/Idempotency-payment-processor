@@ -1,35 +1,39 @@
-<div class="dashboard-shell">
+<div class="admin-shell">
   <app-sidebar></app-sidebar>
 
-  <main class="workspace">
-    <header class="workspace-header">
-      <div class="workspace-copy">
-        <p class="eyebrow">Payments control room</p>
-        <h1>{{ pageCopy.title }}</h1>
-        <p class="workspace-subtitle">{{ pageCopy.subtitle }}</p>
-      </div>
+  <div class="main-area">
+    <!-- White banner header -->
+    <header class="page-banner">
+      <div class="banner-top">
+        <div class="banner-copy">
+          <p class="banner-eyebrow">Payments Control Room</p>
+          <h1 class="banner-title">{{ pageCopy.title }}</h1>
+          <p class="banner-sub">{{ pageCopy.subtitle }}</p>
+        </div>
 
-      <div class="workspace-chips">
-        <div class="chip">
-          <span>Active view</span>
-          <strong>{{ pageCopy.badge }}</strong>
-        </div>
-        <div class="chip success">
-          <span>Runtime</span>
-          <strong>Healthy</strong>
-        </div>
-        <div class="chip neutral">
-          <span>Bank mode</span>
-          <strong>{{ state.bankMode() }}</strong>
+        <div class="banner-pills">
+          <div class="banner-pill">
+            <span class="pill-label">Active View</span>
+            <span class="pill-value">{{ pageCopy.badge }}</span>
+          </div>
+          <div class="banner-pill">
+            <span class="pill-label">Runtime</span>
+            <span class="pill-value healthy">Healthy</span>
+          </div>
+          <div class="banner-pill">
+            <span class="pill-label">Bank Mode</span>
+            <span class="pill-value">{{ state.bankMode() | uppercase }}</span>
+          </div>
         </div>
       </div>
     </header>
 
-    <section class="workspace-panel">
-      <app-overview *ngIf="state.activeTab() === 'overview'"></app-overview>
-      <app-lab *ngIf="state.activeTab() === 'lab'"></app-lab>
+    <!-- Scrollable content -->
+    <div class="content-area">
+      <app-overview     *ngIf="state.activeTab() === 'overview'"></app-overview>
+      <app-lab          *ngIf="state.activeTab() === 'lab'"></app-lab>
       <app-bank-simulator *ngIf="state.activeTab() === 'bank'"></app-bank-simulator>
-      <app-timeline *ngIf="state.activeTab() === 'timeline'"></app-timeline>
-    </section>
-  </main>
+      <app-timeline     *ngIf="state.activeTab() === 'timeline'"></app-timeline>
+    </div>
+  </div>
 </div>

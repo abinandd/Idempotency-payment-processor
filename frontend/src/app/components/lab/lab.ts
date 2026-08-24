@@ -7,101 +7,108 @@ import { PaymentStateService } from '../../services/payment-state';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="page-stack">
-      <header class="page-header">
-        <p class="eyebrow">Concurrency lab</p>
-        <h2>Duplicate request simulation</h2>
-        <p>Send identical payment requests at the same time and observe how the idempotency key prevents extra bank calls.</p>
-      </header>
-
-      <div class="request-grid">
-        <section class="panel">
-          <div class="panel-head">
-            <div class="panel-title">
-              <h3>Run settings</h3>
-              <p>Shape the burst before sending it into the mock payment API.</p>
-            </div>
-            <span class="helper-chip"><i data-lucide="shield"></i> {{ state.bankMode() }} mode</span>
-          </div>
-
-          <div class="form-stack">
-            <div class="field">
-              <label for="amount">Amount (INR)</label>
-              <div class="input-shell">
-                <i data-lucide="credit-card" class="text-accent"></i>
-                <input
-                  id="amount"
-                  type="number"
-                  min="1"
-                  [value]="state.labAmount()"
-                  (input)="setAmount($any($event.target).value)" />
-              </div>
-              <p class="field-hint">The lab uses one shared amount across every request in the burst.</p>
-            </div>
-
-            <div class="field">
-              <label for="request-count">Concurrent requests</label>
-              <div class="input-shell">
-                <i data-lucide="shuffle" class="text-accent"></i>
-                <input
-                  id="request-count"
-                  type="number"
-                  min="1"
-                  max="20"
-                  [value]="state.labRequestCount()"
-                  (input)="setCount($any($event.target).value)" />
-              </div>
-              <p class="field-hint">Higher values increase the chance of duplicate contention.</p>
-            </div>
-
-            <div class="button-row">
-              <button class="button button-primary" type="button" (click)="state.runLab()" [disabled]="state.isProcessing()">
-                <i data-lucide="zap"></i>
-                {{ state.isProcessing() ? 'Processing burst' : 'Send duplicate burst' }}
-              </button>
-              <button class="button button-secondary" type="button" (click)="state.addTimeline('Lab controls inspected.')">
-                <i data-lucide="activity"></i>
-                Mark note
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head">
-            <div class="panel-title">
-              <h3>Live request stream</h3>
-              <p>Each row shows the result of one concurrent request.</p>
-            </div>
-            <span class="helper-chip"><i data-lucide="list"></i> {{ state.labRequests().length }} tracked</span>
-          </div>
-
-          <div class="request-list">
-            <div *ngFor="let request of state.labRequests()" class="request-item" [ngClass]="request.status">
-              <div class="request-left">
-                <i *ngIf="request.status === 'success'" data-lucide="check-circle" class="text-success"></i>
-                <i *ngIf="request.status === 'conflict'" data-lucide="shield" class="text-warning"></i>
-                <i *ngIf="request.status === 'error'" data-lucide="x-circle" class="text-danger"></i>
-                <i *ngIf="request.status === 'pending'" data-lucide="clock" class="text-muted"></i>
-                <div>
-                  <strong>REQ-{{ request.index.toString().padStart(2, '0') }}</strong>
-                  <div class="request-meta">
-                    {{ request.status === 'success' ? 'Processed successfully' : request.status === 'conflict' ? 'Rejected as duplicate' : request.status === 'error' ? 'Unexpected error' : 'Waiting for a response' }}
-                  </div>
-                </div>
-              </div>
-              <span class="badge" [ngClass]="request.status">{{ request.status }}</span>
-            </div>
-
-            <div *ngIf="state.labRequests().length === 0" class="empty-state">
-              <i data-lucide="activity"></i>
-              <strong>No burst started yet</strong>
-              <span>Choose a request count and launch the simulation.</span>
-            </div>
-          </div>
-        </section>
+    <div>
+      <div class="section-head">
+        <h2>Duplicate request stress test</h2>
+        <p>Configure a burst of identical requests, launch it, and inspect how idempotency keeps bank traffic under control.</p>
       </div>
-    </section>
+
+      <div class="two-col">
+        <!-- Settings panel -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Simulation settings</h3>
+              <p>These controls shape the next test run.</p>
+            </div>
+            <span class="live-chip">
+              <i data-lucide="shield" style="width:13px;height:13px;"></i>
+              {{ state.bankMode() }}
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <div class="field">
+                <label for="amount">Amount (INR)</label>
+                <div class="input-wrap">
+                  <i data-lucide="credit-card" style="width:15px;height:15px;"></i>
+                  <input
+                    id="amount"
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 5000"
+                    [value]="state.labAmount()"
+                    (input)="setAmount($any($event.target).value)" />
+                </div>
+                <span class="field-hint">A single value reused across every request in the burst.</span>
+              </div>
+
+              <div class="field">
+                <label for="request-count">Concurrent requests</label>
+                <div class="input-wrap">
+                  <i data-lucide="shuffle" style="width:15px;height:15px;"></i>
+                  <input
+                    id="request-count"
+                    type="number"
+                    min="1"
+                    max="20"
+                    placeholder="e.g. 5"
+                    [value]="state.labRequestCount()"
+                    (input)="setCount($any($event.target).value)" />
+                </div>
+                <span class="field-hint">More requests create a louder race for the same key.</span>
+              </div>
+
+              <div class="btn-row">
+                <button class="btn btn-primary" type="button" (click)="state.runLab()" [disabled]="state.isProcessing()">
+                  <i data-lucide="zap" style="width:14px;height:14px;"></i>
+                  {{ state.isProcessing() ? 'Running…' : 'Launch burst' }}
+                </button>
+                <button class="btn btn-secondary" type="button" (click)="state.addTimeline('Lab settings reviewed.')">
+                  <i data-lucide="activity" style="width:14px;height:14px;"></i>
+                  Add note
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results panel -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Request results</h3>
+              <p>Watch each request settle into success, conflict, or error.</p>
+            </div>
+            <span class="live-chip">{{ state.labRequests().length }} rows</span>
+          </div>
+
+          <div *ngIf="state.labRequests().length > 0">
+            <div class="table-header">
+              <span>Request</span>
+              <span>Description</span>
+              <span>Status</span>
+            </div>
+            <div *ngFor="let req of state.labRequests()" class="table-row" [ngClass]="req.status">
+              <span class="req-id">REQ-{{ req.index.toString().padStart(2,'0') }}</span>
+              <span class="req-desc">
+                {{ req.status === 'success' ? 'Processed successfully'
+                 : req.status === 'conflict' ? 'Blocked as duplicate'
+                 : req.status === 'error' ? 'Unexpected error'
+                 : 'Awaiting response' }}
+              </span>
+              <span class="badge" [ngClass]="req.status">{{ req.status }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="state.labRequests().length === 0" class="empty-state">
+            <i data-lucide="activity" style="width:30px;height:30px;"></i>
+            <strong>No requests launched yet</strong>
+            <span>Tune the settings and start a burst to populate the results list.</span>
+          </div>
+        </div>
+      </div>
+    </div>
   `
 })
 export class LabComponent {

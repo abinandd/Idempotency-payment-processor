@@ -1,5 +1,5 @@
 import { Component, AfterViewChecked, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, UpperCasePipe } from '@angular/common';
 import { createIcons, CreditCard, Landmark, CheckCircle, XCircle, Clock, Shuffle, BarChart2, Zap, Send, List, Shield, Layout, Settings, Activity, Database, Server } from 'lucide';
 import { SidebarComponent } from './components/sidebar/sidebar';
 import { OverviewComponent } from './components/overview/overview';
@@ -55,6 +55,7 @@ const PAGE_COPY: Record<string, { title: string; subtitle: string; badge: string
   standalone: true,
   imports: [
     CommonModule, 
+    UpperCasePipe,
     SidebarComponent, 
     OverviewComponent, 
     LabComponent, 

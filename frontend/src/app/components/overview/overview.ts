@@ -8,44 +8,48 @@ import { PIPELINE_STEPS, STAT_CARDS } from '../../utils/ui-data';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="page-stack">
-      <header class="page-header">
-        <p class="eyebrow">System overview</p>
+    <div>
+      <!-- Section heading -->
+      <div class="section-head">
         <h2>Live payment telemetry</h2>
         <p>Watch the demo summarize request volume, successful commits, bank calls, and duplicate suppression in one place.</p>
-      </header>
-
-      <div class="metric-grid">
-        <article *ngFor="let card of statCards" class="metric-card" [ngClass]="card.cardClass">
-          <div class="metric-head">
-            <div class="metric-label">{{ card.label }}</div>
-            <i [attr.data-lucide]="card.icon" [class]="card.iconClass"></i>
-          </div>
-          <div class="metric-value text-mono">{{ getStatValue(card.id) }}</div>
-          <p class="metric-caption">{{ card.description }}</p>
-        </article>
       </div>
 
-      <section class="panel">
+      <!-- Stat cards -->
+      <div class="stat-grid">
+        <div *ngFor="let card of statCards" class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon-wrap">
+              <i [attr.data-lucide]="card.icon" style="width:16px;height:16px;"></i>
+            </div>
+            <span class="stat-label-text">{{ card.label }}</span>
+          </div>
+          <div class="stat-value">{{ getStatValue(card.id) }}</div>
+          <div class="stat-desc">{{ card.description }}</div>
+        </div>
+      </div>
+
+      <!-- Processing pipeline -->
+      <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">
+          <div>
             <h3>Processing pipeline</h3>
             <p>Each request follows the same protected path before reaching the bank.</p>
           </div>
-          <span class="helper-chip"><i data-lucide="activity"></i> Live flow</span>
+          <span class="live-chip">
+            <i data-lucide="activity" style="width:13px;height:13px;"></i>
+            Live flow
+          </span>
         </div>
-
-        <div class="pipeline-grid">
-          <article *ngFor="let step of pipelineSteps" class="pipeline-step">
-            <div class="step-icon">
-              <i [attr.data-lucide]="step.icon" [ngClass]="step.colorClass"></i>
-            </div>
-            <strong>{{ step.label }}</strong>
+        <div class="pipeline">
+          <div *ngFor="let step of pipelineSteps; let i = index" class="pipeline-step">
+            <div class="step-num-badge">{{ i + 1 }}</div>
+            <h4>{{ step.label }}</h4>
             <p>{{ step.description }}</p>
-          </article>
+          </div>
         </div>
-      </section>
-    </section>
+      </div>
+    </div>
   `
 })
 export class OverviewComponent {

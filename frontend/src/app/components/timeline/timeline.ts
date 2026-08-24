@@ -7,38 +7,35 @@ import { PaymentStateService } from '../../services/payment-state';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="page-stack">
-      <header class="page-header">
-        <p class="eyebrow">Event stream</p>
-        <h2>Operational timeline</h2>
-        <p>Recent actions appear here as the lab runs, the bank mode changes, and the runtime updates.</p>
-      </header>
+    <div>
+      <div class="section-head">
+        <h2>Event timeline</h2>
+        <p>All notable changes are collected here in chronological order. New entries appear at the top.</p>
+      </div>
 
-      <section class="log-stream">
+      <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">
-            <h3>Recent entries</h3>
-            <p>Newer messages appear at the top of the feed.</p>
+          <div>
+            <h3>Event feed</h3>
+            <p>New entries appear at the top.</p>
           </div>
-          <span class="helper-chip"><i data-lucide="list"></i> {{ state.timeline().length }} events</span>
+          <span class="live-chip">{{ state.timeline().length }} items</span>
         </div>
 
-        <div class="log-list">
-          <div *ngFor="let item of state.timeline()" class="log-item">
+        <div *ngIf="state.timeline().length > 0" class="log-feed">
+          <div *ngFor="let item of state.timeline()" class="log-entry">
             <span class="log-dot"></span>
-            <div>
-              <div class="text-mono">{{ item }}</div>
-            </div>
-          </div>
-
-          <div *ngIf="state.timeline().length === 0" class="empty-state">
-            <i data-lucide="activity"></i>
-            <strong>No events captured yet</strong>
-            <span>Interact with the lab or change the bank mode to populate this feed.</span>
+            <span class="log-text">{{ item }}</span>
           </div>
         </div>
-      </section>
-    </section>
+
+        <div *ngIf="state.timeline().length === 0" class="empty-state">
+          <i data-lucide="activity" style="width:30px;height:30px;"></i>
+          <strong>No activity yet</strong>
+          <span>Run the lab or change bank modes to add entries to the log.</span>
+        </div>
+      </div>
+    </div>
   `
 })
 export class TimelineComponent {

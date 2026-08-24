@@ -8,54 +8,56 @@ import { SIDEBAR_NAV_ITEMS } from '../../utils/ui-data';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <aside class="sidebar-shell">
-      <section class="sidebar-brand">
-        <div class="brand-mark">
-          <i data-lucide="shield"></i>
+    <aside class="sidebar">
+      <!-- Logo -->
+      <div class="sidebar-logo">
+        <div class="logo-icon">
+          <i data-lucide="shield" style="width:20px;height:20px;"></i>
         </div>
-        <div class="brand-copy">
-          <p class="eyebrow">Realtime payments</p>
-          <h2>Idempotency Lab</h2>
-          <p>Design and inspect the payment retry path.</p>
+        <div class="logo-text">
+          <span>Realtime Payments</span>
+          <strong>Idempotency Lab</strong>
         </div>
-      </section>
+      </div>
 
+      <!-- Nav items -->
       <nav class="sidebar-nav" aria-label="Primary navigation">
         <button
           *ngFor="let item of navItems"
           type="button"
-          class="nav-button"
+          class="nav-item"
           [class.active]="state.activeTab() === item.id"
           (click)="state.setTab(item.id)">
-          <span class="nav-icon"><i [attr.data-lucide]="item.icon"></i></span>
-          <span class="nav-copy">
-            <strong>{{ item.label }}</strong>
-            <small>{{ item.description }}</small>
-          </span>
+          <i [attr.data-lucide]="item.icon" style="width:18px;height:18px;"></i>
+          {{ item.label }}
         </button>
       </nav>
 
-      <section class="sidebar-footer">
-        <div class="status-grid">
-          <div class="status-row">
-            <span><i data-lucide="server" class="text-success"></i> API</span>
-            <strong>Online</strong>
-          </div>
-          <div class="status-row">
-            <span><i data-lucide="database" class="text-accent"></i> Redis</span>
-            <strong>Connected</strong>
-          </div>
-          <div class="status-row">
-            <span><i data-lucide="database" class="text-accent"></i> Postgres</span>
-            <strong>Connected</strong>
-          </div>
+      <!-- System status -->
+      <div class="sidebar-system">
+        <div class="system-label">System</div>
+        <div class="sys-row">
+          <i data-lucide="server" style="width:14px;height:14px;color:rgba(255,255,255,0.5)"></i>
+          API
+          <span class="sys-status online">Online</span>
         </div>
+        <div class="sys-row">
+          <i data-lucide="database" style="width:14px;height:14px;color:rgba(255,255,255,0.5)"></i>
+          Redis
+          <span class="sys-status info">Connected</span>
+        </div>
+        <div class="sys-row">
+          <i data-lucide="database" style="width:14px;height:14px;color:rgba(255,255,255,0.5)"></i>
+          Postgres
+          <span class="sys-status info">Connected</span>
+        </div>
+      </div>
 
-        <div style="margin-top: 1rem; display: flex; justify-content: space-between; gap: 0.75rem; align-items: center;">
-          <span class="env-chip">Dev env</span>
-          <span class="text-muted text-mono">v2.0</span>
-        </div>
-      </section>
+      <!-- Footer ENV chip -->
+      <div class="sidebar-footer">
+        <span class="footer-env">Dev Env</span>
+        <span class="footer-ver">v2.0</span>
+      </div>
     </aside>
   `
 })

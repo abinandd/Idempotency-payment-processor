@@ -8,47 +8,44 @@ import { BANK_MODES } from '../../utils/ui-data';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="page-stack">
-      <header class="page-header">
-        <p class="eyebrow">Provider controls</p>
-        <h2>Bank simulator</h2>
-        <p>Flip the mock provider between success, failure, and timeout to see how the payment flow and idempotency store react.</p>
-      </header>
+    <div>
+      <div class="section-head">
+        <h2>Provider response modes</h2>
+        <p>Switch the mock provider to simulate a happy path, a rejection, or a timeout and observe how the payment engine responds.</p>
+      </div>
 
-      <section class="panel">
+      <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">
-            <h3>Response mode</h3>
-            <p>The active mode changes the next bank response immediately.</p>
+          <div>
+            <h3>Bank behaviour</h3>
+            <p>The selected mode changes what the next payment attempt receives.</p>
           </div>
-          <span class="helper-chip"><i data-lucide="settings"></i> Active: {{ state.bankMode() }}</span>
+          <span class="live-chip">
+            <i data-lucide="settings" style="width:13px;height:13px;"></i>
+            Active: {{ state.bankMode() }}
+          </span>
         </div>
-
-        <div class="mode-grid">
-          <button
-            *ngFor="let mode of bankModes"
-            type="button"
-            class="mode-card"
-            [class.active]="state.bankMode() === mode.id"
-            (click)="state.handleSetBankMode(mode.id)">
-            <div class="mode-card-header">
-              <div class="mode-copy">
-                <strong>{{ mode.label }}</strong>
-                <span>{{ mode.description }}</span>
+        <div class="panel-body">
+          <div class="mode-grid">
+            <button
+              *ngFor="let mode of bankModes"
+              type="button"
+              class="mode-card"
+              [class.active]="state.bankMode() === mode.id"
+              (click)="state.handleSetBankMode(mode.id)">
+              <div class="mode-top">
+                <div class="mode-icon">
+                  <i [attr.data-lucide]="mode.icon" style="width:16px;height:16px;"></i>
+                </div>
+                <span class="active-indicator"></span>
               </div>
-              <span class="mode-icon" [ngClass]="mode.colorClass">
-                <i [attr.data-lucide]="mode.icon"></i>
-              </span>
-            </div>
-
-            <div class="helper-chip" [ngClass]="mode.colorClass">
-              <i data-lucide="activity"></i>
-              Select {{ mode.label }}
-            </div>
-          </button>
+              <div class="mode-name">{{ mode.label }}</div>
+              <div class="mode-desc">{{ mode.description }}</div>
+            </button>
+          </div>
         </div>
-      </section>
-    </section>
+      </div>
+    </div>
   `
 })
 export class BankSimulatorComponent {
