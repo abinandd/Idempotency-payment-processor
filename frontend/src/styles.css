@@ -1,1 +1,35 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg-base: #09090b;   /* Zinc 950 */
+  --bg-panel: #18181b;  /* Zinc 900 */
+  --bg-card: #27272a;   /* Zinc 800 */
+  --border: #3f3f46;    /* Zinc 700 */
+  --border-hover: #52525b; /* Zinc 600 */
+  
+  --text-main: #f4f4f5; /* Zinc 50 */
+  --text-muted: #a1a1aa;/* Zinc 400 */
+  
+  --accent: #3b82f6;    /* Blue 500 */
+  --accent-glow: rgba(59, 130, 246, 0.4);
+  --success: #10b981;   /* Emerald 500 */
+  --success-glow: rgba(16, 185, 129, 0.4);
+  --danger: #ef4444;    /* Red 500 */
+  --warning: #f59e0b;   /* Amber 500 */
+  
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  background: var(--bg-base); 
+  color: var(--text-main); 
+  font-family: 'Poppins', sans-serif; 
+  -webkit-font-smoothing: antialiased;
+}
