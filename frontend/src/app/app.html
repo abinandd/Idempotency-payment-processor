@@ -1,8 +1,8 @@
 <div class="dashboard-layout">
   <aside class="sidebar">
     <div class="sidebar-header">
-      <i data-lucide="shield" class="icon-inline"></i>
-      <span>Payment Engine</span>
+      <i data-lucide="shield" class="icon-inline text-accent"></i>
+      <span class="text-gradient">Payment Engine</span>
     </div>
     
     <div class="sidebar-nav">
@@ -21,16 +21,16 @@
     </div>
 
     <div class="sidebar-footer">
-      <div class="status-item"><i data-lucide="server" class="icon-small"></i> API: Online</div>
-      <div class="status-item"><i data-lucide="database" class="icon-small"></i> Redis: Connected</div>
-      <div class="status-item"><i data-lucide="database" class="icon-small"></i> Postgres: Connected</div>
+      <div class="status-item"><i data-lucide="server" class="icon-small text-success"></i> API: Online</div>
+      <div class="status-item"><i data-lucide="database" class="icon-small text-accent"></i> Redis: Connected</div>
+      <div class="status-item"><i data-lucide="database" class="icon-small text-accent"></i> Postgres: Connected</div>
       <div class="env-badge">Dev Env</div>
     </div>
   </aside>
 
   <main class="main-content">
     <header class="topbar">
-      <div class="topbar-title">Dashboard / {{ activeTab() | titlecase }}</div>
+      <div class="topbar-title">Dashboard / <span class="text-white">{{ activeTab() | titlecase }}</span></div>
       <div class="topbar-actions">
         <div class="system-status"><span class="dot green"></span> ALL SYSTEMS OPERATIONAL</div>
       </div>
@@ -41,41 +41,53 @@
       <!-- Tab: Overview -->
       <div *ngIf="activeTab() === 'overview'">
         <div class="page-header">
-            <h2>Payment Processing</h2>
+            <h2 class="text-gradient">Payment Processing</h2>
             <p>Real-time idempotency and transaction monitoring</p>
         </div>
         
         <div class="grid-4">
           <div class="card stat-card">
-            <div class="stat-label">Total Requests</div>
+            <div class="stat-header">
+                <div class="stat-label">Total Requests</div>
+                <i data-lucide="activity" class="text-muted"></i>
+            </div>
             <div class="stat-value text-mono">{{ stats().totalRequests }}</div>
           </div>
           <div class="card stat-card">
-            <div class="stat-label">Actual Bank Calls</div>
+            <div class="stat-header">
+                <div class="stat-label">Actual Bank Calls</div>
+                <i data-lucide="landmark" class="text-muted"></i>
+            </div>
             <div class="stat-value text-mono">{{ stats().bankCalls }}</div>
           </div>
           <div class="card stat-card success-card">
-            <div class="stat-label">Successful Payments</div>
+            <div class="stat-header">
+                <div class="stat-label">Successful Payments</div>
+                <i data-lucide="check-circle" class="text-success"></i>
+            </div>
             <div class="stat-value text-mono">{{ stats().successfulPayments }}</div>
           </div>
           <div class="card stat-card safe-card">
-            <div class="stat-label">Duplicate Requests Blocked</div>
+            <div class="stat-header">
+                <div class="stat-label">Duplicates Blocked</div>
+                <i data-lucide="shield" class="text-accent"></i>
+            </div>
             <div class="stat-value text-mono">{{ stats().duplicateRequests }}</div>
           </div>
         </div>
 
         <div class="card mt-4">
-            <h3>Live Processing Pipeline</h3>
+            <h3 class="card-title">Live Processing Pipeline</h3>
             <div class="pipeline-viz">
-                <div class="pipe-node">Request<br>Received</div>
+                <div class="pipe-node"><i data-lucide="send" class="mb-2 block mx-auto text-accent"></i>Request<br>Received</div>
                 <div class="pipe-line"></div>
-                <div class="pipe-node">Idempotency<br>Check</div>
+                <div class="pipe-node"><i data-lucide="shield" class="mb-2 block mx-auto text-accent"></i>Idempotency<br>Check</div>
                 <div class="pipe-line"></div>
-                <div class="pipe-node">Redis<br>Lock</div>
+                <div class="pipe-node"><i data-lucide="database" class="mb-2 block mx-auto text-danger"></i>Redis<br>Lock</div>
                 <div class="pipe-line"></div>
-                <div class="pipe-node">Bank<br>Processing</div>
+                <div class="pipe-node"><i data-lucide="landmark" class="mb-2 block mx-auto text-warning"></i>Bank<br>Processing</div>
                 <div class="pipe-line"></div>
-                <div class="pipe-node">Database<br>Commit</div>
+                <div class="pipe-node"><i data-lucide="database" class="mb-2 block mx-auto text-success"></i>Database<br>Commit</div>
             </div>
         </div>
       </div>
@@ -83,35 +95,49 @@
       <!-- Tab: Idempotency Lab -->
       <div *ngIf="activeTab() === 'lab'">
         <div class="page-header">
-            <h2>Idempotency Lab</h2>
+            <h2 class="text-gradient">Idempotency Lab</h2>
             <p>Simulate concurrent payment requests and observe how duplicate transactions are prevented.</p>
         </div>
         
         <div class="grid-2">
             <div class="card">
-                <h3>Configuration</h3>
+                <h3 class="card-title">Configuration</h3>
                 <div class="form-group">
                     <label>Amount (INR)</label>
-                    <input type="number" class="input-dark" [value]="labAmount()" (change)="labAmount.set($any($event.target).value)">
+                    <div class="input-with-icon">
+                        <i data-lucide="credit-card"></i>
+                        <input type="number" class="input-dark" [value]="labAmount()" (change)="labAmount.set($any($event.target).value)">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Concurrent Requests</label>
-                    <input type="number" class="input-dark" [value]="labRequestCount()" (change)="labRequestCount.set($any($event.target).value)">
+                    <div class="input-with-icon">
+                        <i data-lucide="shuffle"></i>
+                        <input type="number" class="input-dark" [value]="labRequestCount()" (change)="labRequestCount.set($any($event.target).value)">
+                    </div>
                 </div>
                 
-                <button class="btn btn-primary" (click)="runLab()" [disabled]="isProcessing()">
-                    <i data-lucide="zap"></i> SEND IDENTICAL REQUESTS
+                <button class="btn btn-primary mt-4" (click)="runLab()" [disabled]="isProcessing()">
+                    <i data-lucide="zap" [class.spinning]="isProcessing()"></i> 
+                    {{ isProcessing() ? 'PROCESSING...' : 'SEND IDENTICAL REQUESTS' }}
                 </button>
             </div>
             
             <div class="card">
-                <h3>Live Visualization</h3>
+                <h3 class="card-title">Live Visualization</h3>
                 <div class="req-list">
                     <div *ngFor="let r of labRequests()" class="req-item" [ngClass]="r.status">
-                        <span class="text-mono">REQ-0{{ r.index }}</span>
+                        <div class="req-item-left">
+                            <i *ngIf="r.status === 'success'" data-lucide="check-circle" class="text-success mr-2"></i>
+                            <i *ngIf="r.status === 'conflict'" data-lucide="shield" class="text-warning mr-2"></i>
+                            <i *ngIf="r.status === 'error'" data-lucide="x-circle" class="text-danger mr-2"></i>
+                            <i *ngIf="r.status === 'pending'" data-lucide="clock" class="text-muted mr-2"></i>
+                            <span class="text-mono font-bold">REQ-0{{ r.index }}</span>
+                        </div>
                         <span class="badge" [ngClass]="r.status">{{ r.status | uppercase }}</span>
                     </div>
                     <div *ngIf="labRequests().length === 0" class="empty-state">
+                        <i data-lucide="activity" class="mx-auto block mb-2 opacity-50 icon-large"></i>
                         Click send to begin simulation.
                     </div>
                 </div>
@@ -122,21 +148,24 @@
       <!-- Tab: Bank Simulator -->
       <div *ngIf="activeTab() === 'bank'">
         <div class="page-header">
-            <h2>Bank Simulator</h2>
+            <h2 class="text-gradient">Bank Simulator</h2>
             <p>Control how the simulated banking provider responds.</p>
         </div>
         
         <div class="grid-3">
             <div class="card mode-card" (click)="handleSetBankMode('SUCCESS')" [class.active]="bankMode() === 'SUCCESS'">
-                <h3><i data-lucide="check-circle" class="icon-inline"></i> SUCCESS</h3>
+                <div class="mode-icon text-success"><i data-lucide="check-circle"></i></div>
+                <h3>SUCCESS</h3>
                 <p>Bank approves the transaction normally.</p>
             </div>
             <div class="card mode-card" (click)="handleSetBankMode('FAILURE')" [class.active]="bankMode() === 'FAILURE'">
-                <h3><i data-lucide="x-circle" class="icon-inline"></i> FAILURE</h3>
+                <div class="mode-icon text-danger"><i data-lucide="x-circle"></i></div>
+                <h3>FAILURE</h3>
                 <p>Bank rejects the transaction.</p>
             </div>
             <div class="card mode-card" (click)="handleSetBankMode('TIMEOUT')" [class.active]="bankMode() === 'TIMEOUT'">
-                <h3><i data-lucide="clock" class="icon-inline"></i> TIMEOUT</h3>
+                <div class="mode-icon text-warning"><i data-lucide="clock"></i></div>
+                <h3>TIMEOUT</h3>
                 <p>Bank does not respond. Status unknown.</p>
             </div>
         </div>
@@ -145,17 +174,17 @@
       <!-- Tab: Timeline -->
       <div *ngIf="activeTab() === 'timeline'">
         <div class="page-header">
-            <h2>Event Timeline</h2>
+            <h2 class="text-gradient">Event Timeline</h2>
             <p>Engineering-style event logs.</p>
         </div>
         
         <div class="card">
             <ul class="log-list">
                 <li *ngFor="let t of timeline()" class="text-mono">
-                    > {{ t }}
+                    <span class="text-accent mr-2">></span> {{ t }}
                 </li>
                 <li *ngIf="timeline().length === 0" class="text-mono opacity-50">
-                    > No events recorded yet...
+                    <span class="text-muted mr-2">></span> No events recorded yet...
                 </li>
             </ul>
         </div>
