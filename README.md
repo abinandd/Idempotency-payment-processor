@@ -6,7 +6,7 @@ A production-style payment gateway demonstrating idempotency, concurrency contro
 - **Backend:** Java 21, Spring Boot 3
 - **Database:** PostgreSQL (persistent payment records)
 - **Cache/Locking:** Redis (idempotency state and atomic SET NX)
-- **Frontend:** React + Vite
+- **Frontend:** Angular 21
 
 ## How Idempotency Works
 1. Client sends `Idempotency-Key` header.
@@ -16,9 +16,6 @@ A production-style payment gateway demonstrating idempotency, concurrency contro
 5. Reconciliation job fixes UNKNOWN payments from timeouts.
 
 ## Running Locally
-```bash
-docker compose up
-```
 Backend runs on `:8080`, Frontend on `:3000`.
 
 ## Demo
