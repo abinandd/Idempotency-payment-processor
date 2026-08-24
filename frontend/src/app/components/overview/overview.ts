@@ -8,35 +8,44 @@ import { PIPELINE_STEPS, STAT_CARDS } from '../../utils/ui-data';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="page-header">
-        <h2 class="text-gradient">Payment Processing</h2>
-        <p>Real-time idempotency and transaction monitoring</p>
-    </div>
-    
-    <div class="grid-4">
-      <div *ngFor="let card of statCards" class="card stat-card" [ngClass]="card.cardClass">
-        <div class="stat-header">
-            <div class="stat-label">{{ card.label }}</div>
-            <i [attr.data-lucide]="card.icon" [class]="card.iconClass"></i>
-        </div>
-        <div class="stat-value text-mono">
-            {{ getStatValue(card.id) }}
-        </div>
-      </div>
-    </div>
+    <section class="page-stack">
+      <header class="page-header">
+        <p class="eyebrow">System overview</p>
+        <h2>Live payment telemetry</h2>
+        <p>Watch the demo summarize request volume, successful commits, bank calls, and duplicate suppression in one place.</p>
+      </header>
 
-    <div class="card mt-4">
-        <h3 class="card-title">Live Processing Pipeline</h3>
-        <div class="pipeline-viz">
-            <ng-container *ngFor="let step of pipelineSteps; let i = index">
-              <div class="pipe-node">
-                  <i [attr.data-lucide]="step.icon" class="mb-2 block mx-auto" [ngClass]="step.colorClass"></i>
-                  <span [innerHTML]="step.label"></span>
-              </div>
-              <div *ngIf="i < pipelineSteps.length - 1" class="pipe-line"></div>
-            </ng-container>
+      <div class="metric-grid">
+        <article *ngFor="let card of statCards" class="metric-card" [ngClass]="card.cardClass">
+          <div class="metric-head">
+            <div class="metric-label">{{ card.label }}</div>
+            <i [attr.data-lucide]="card.icon" [class]="card.iconClass"></i>
+          </div>
+          <div class="metric-value text-mono">{{ getStatValue(card.id) }}</div>
+          <p class="metric-caption">{{ card.description }}</p>
+        </article>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <h3>Processing pipeline</h3>
+            <p>Each request follows the same protected path before reaching the bank.</p>
+          </div>
+          <span class="helper-chip"><i data-lucide="activity"></i> Live flow</span>
         </div>
-    </div>
+
+        <div class="pipeline-grid">
+          <article *ngFor="let step of pipelineSteps" class="pipeline-step">
+            <div class="step-icon">
+              <i [attr.data-lucide]="step.icon" [ngClass]="step.colorClass"></i>
+            </div>
+            <strong>{{ step.label }}</strong>
+            <p>{{ step.description }}</p>
+          </article>
+        </div>
+      </section>
+    </section>
   `
 })
 export class OverviewComponent {

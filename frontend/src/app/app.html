@@ -1,19 +1,35 @@
-<div class="dashboard-layout">
+<div class="dashboard-shell">
   <app-sidebar></app-sidebar>
 
-  <main class="main-content">
-    <header class="topbar">
-      <div class="topbar-title">Dashboard / <span class="text-white">{{ state.activeTab() | titlecase }}</span></div>
-      <div class="topbar-actions">
-        <div class="system-status"><span class="dot green"></span> ALL SYSTEMS OPERATIONAL</div>
+  <main class="workspace">
+    <header class="workspace-header">
+      <div class="workspace-copy">
+        <p class="eyebrow">Payments control room</p>
+        <h1>{{ pageCopy.title }}</h1>
+        <p class="workspace-subtitle">{{ pageCopy.subtitle }}</p>
+      </div>
+
+      <div class="workspace-chips">
+        <div class="chip">
+          <span>Active view</span>
+          <strong>{{ pageCopy.badge }}</strong>
+        </div>
+        <div class="chip success">
+          <span>Runtime</span>
+          <strong>Healthy</strong>
+        </div>
+        <div class="chip neutral">
+          <span>Bank mode</span>
+          <strong>{{ state.bankMode() }}</strong>
+        </div>
       </div>
     </header>
 
-    <div class="content-area">
+    <section class="workspace-panel">
       <app-overview *ngIf="state.activeTab() === 'overview'"></app-overview>
       <app-lab *ngIf="state.activeTab() === 'lab'"></app-lab>
       <app-bank-simulator *ngIf="state.activeTab() === 'bank'"></app-bank-simulator>
       <app-timeline *ngIf="state.activeTab() === 'timeline'"></app-timeline>
-    </div>
+    </section>
   </main>
 </div>
