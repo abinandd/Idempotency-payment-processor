@@ -1,37 +1,37 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaymentStateService } from '../../services/payment-state';
+import { AnimationService } from '../../services/animation.service';
 
 @Component({
   selector: 'app-lab',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div>
-      <div class="section-head">
-        <h2>Duplicate request stress test</h2>
-        <p>Configure a burst of identical requests, launch it, and inspect how idempotency keeps bank traffic under control.</p>
+    <div #container>
+
+      <div class="section-head" #headEl>
+        <h2>Stress Lab</h2>
+        <p>Fire a burst of identical requests and watch duplicate suppression in action.</p>
       </div>
 
       <div class="two-col">
-        <!-- Settings panel -->
-        <div class="panel">
+
+        <!-- Settings -->
+        <div class="panel" #settingsPanel>
           <div class="panel-head">
             <div>
-              <h3>Simulation settings</h3>
-              <p>These controls shape the next test run.</p>
+              <h3>Settings</h3>
+              <p>Configure the next burst.</p>
             </div>
-            <span class="live-chip">
-              <i data-lucide="shield" style="width:13px;height:13px;"></i>
-              {{ state.bankMode() }}
-            </span>
+            <span class="live-chip">{{ state.bankMode() }}</span>
           </div>
           <div class="panel-body">
             <div class="form-group">
+
               <div class="field">
                 <label for="amount">Amount (INR)</label>
                 <div class="input-wrap">
-                  <i data-lucide="credit-card" style="width:15px;height:15px;"></i>
                   <input
                     id="amount"
                     type="number"
@@ -40,13 +40,12 @@ import { PaymentStateService } from '../../services/payment-state';
                     [value]="state.labAmount()"
                     (input)="setAmount($any($event.target).value)" />
                 </div>
-                <span class="field-hint">A single value reused across every request in the burst.</span>
+                <span class="field-hint">Same value sent across all requests.</span>
               </div>
 
               <div class="field">
-                <label for="request-count">Concurrent requests</label>
+                <label for="request-count">Concurrent Requests</label>
                 <div class="input-wrap">
-                  <i data-lucide="shuffle" style="width:15px;height:15px;"></i>
                   <input
                     id="request-count"
                     type="number"
@@ -56,69 +55,72 @@ import { PaymentStateService } from '../../services/payment-state';
                     [value]="state.labRequestCount()"
                     (input)="setCount($any($event.target).value)" />
                 </div>
-                <span class="field-hint">More requests create a louder race for the same key.</span>
+                <span class="field-hint">Maximum 20 concurrent requests.</span>
               </div>
 
               <div class="btn-row">
                 <button class="btn btn-primary" type="button" (click)="state.runLab()" [disabled]="state.isProcessing()">
-                  <i data-lucide="zap" style="width:14px;height:14px;"></i>
-                  {{ state.isProcessing() ? 'Running…' : 'Launch burst' }}
-                </button>
-                <button class="btn btn-secondary" type="button" (click)="state.addTimeline('Lab settings reviewed.')">
-                  <i data-lucide="activity" style="width:14px;height:14px;"></i>
-                  Add note
+                  {{ state.isProcessing() ? 'Running…' : 'Launch Burst' }}
                 </button>
               </div>
+
             </div>
           </div>
         </div>
 
-        <!-- Results panel -->
-        <div class="panel">
+        <!-- Results -->
+        <div class="panel" #resultsPanel>
           <div class="panel-head">
             <div>
-              <h3>Request results</h3>
-              <p>Watch each request settle into success, conflict, or error.</p>
+              <h3>Results</h3>
+              <p>Live outcome of each request.</p>
             </div>
             <span class="live-chip">{{ state.labRequests().length }} rows</span>
           </div>
 
           <div *ngIf="state.labRequests().length > 0">
             <div class="table-header">
-              <span>Request</span>
-              <span>Description</span>
+              <span>ID</span>
+              <span>Outcome</span>
               <span>Status</span>
             </div>
             <div *ngFor="let req of state.labRequests()" class="table-row" [ngClass]="req.status">
               <span class="req-id">REQ-{{ req.index.toString().padStart(2,'0') }}</span>
               <span class="req-desc">
-                {{ req.status === 'success' ? 'Processed successfully'
-                 : req.status === 'conflict' ? 'Blocked as duplicate'
-                 : req.status === 'error' ? 'Unexpected error'
-                 : 'Awaiting response' }}
+                {{ req.status === 'success'  ? 'Processed'
+                 : req.status === 'conflict' ? 'Duplicate blocked'
+                 : req.status === 'error'    ? 'Error'
+                 : 'Pending' }}
               </span>
               <span class="badge" [ngClass]="req.status">{{ req.status }}</span>
             </div>
           </div>
 
           <div *ngIf="state.labRequests().length === 0" class="empty-state">
-            <i data-lucide="activity" style="width:30px;height:30px;"></i>
-            <strong>No requests launched yet</strong>
-            <span>Tune the settings and start a burst to populate the results list.</span>
+            <strong>No requests yet</strong>
+            <span>Launch a burst to see results.</span>
           </div>
         </div>
+
       </div>
     </div>
   `
 })
-export class LabComponent {
-  constructor(public state: PaymentStateService) {}
+export class LabComponent implements AfterViewInit {
+  @ViewChild('headEl')      headEl!: ElementRef<HTMLElement>;
+  @ViewChild('settingsPanel') settingsPanel!: ElementRef<HTMLElement>;
+  @ViewChild('resultsPanel')  resultsPanel!: ElementRef<HTMLElement>;
 
-  setAmount(value: string) {
-    this.state.setLabAmount(Number(value));
+  constructor(public state: PaymentStateService, private anim: AnimationService) {}
+
+  ngAfterViewInit() {
+    this.anim.fadeUp(this.headEl.nativeElement, 0);
+    this.anim.staggerIn(
+      [this.settingsPanel.nativeElement, this.resultsPanel.nativeElement],
+      { y: 26, delay: 0.1, stagger: 0.1, duration: 0.48 }
+    );
   }
 
-  setCount(value: string) {
-    this.state.setLabRequestCount(Number(value));
-  }
+  setAmount(value: string) { this.state.setLabAmount(Number(value)); }
+  setCount(value: string)  { this.state.setLabRequestCount(Number(value)); }
 }

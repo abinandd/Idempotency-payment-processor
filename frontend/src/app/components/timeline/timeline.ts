@@ -1,25 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaymentStateService } from '../../services/payment-state';
+import { AnimationService } from '../../services/animation.service';
 
 @Component({
   selector: 'app-timeline',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div>
-      <div class="section-head">
-        <h2>Event timeline</h2>
-        <p>All notable changes are collected here in chronological order. New entries appear at the top.</p>
+    <div #container>
+
+      <div class="section-head" #headEl>
+        <h2>Event Timeline</h2>
+        <p>A live feed of all notable events. Most recent first.</p>
       </div>
 
-      <div class="panel">
+      <div class="panel" #panelEl>
         <div class="panel-head">
-          <div>
-            <h3>Event feed</h3>
-            <p>New entries appear at the top.</p>
-          </div>
-          <span class="live-chip">{{ state.timeline().length }} items</span>
+          <h3>Event Feed</h3>
+          <span class="live-chip">{{ state.timeline().length }} events</span>
         </div>
 
         <div *ngIf="state.timeline().length > 0" class="log-feed">
@@ -30,14 +29,22 @@ import { PaymentStateService } from '../../services/payment-state';
         </div>
 
         <div *ngIf="state.timeline().length === 0" class="empty-state">
-          <i data-lucide="activity" style="width:30px;height:30px;"></i>
-          <strong>No activity yet</strong>
-          <span>Run the lab or change bank modes to add entries to the log.</span>
+          <strong>No events yet</strong>
+          <span>Run the lab or switch bank modes to generate events.</span>
         </div>
       </div>
+
     </div>
   `
 })
-export class TimelineComponent {
-  constructor(public state: PaymentStateService) {}
+export class TimelineComponent implements AfterViewInit {
+  @ViewChild('headEl')  headEl!: ElementRef<HTMLElement>;
+  @ViewChild('panelEl') panelEl!: ElementRef<HTMLElement>;
+
+  constructor(public state: PaymentStateService, private anim: AnimationService) {}
+
+  ngAfterViewInit() {
+    this.anim.fadeUp(this.headEl.nativeElement, 0);
+    this.anim.fadeUp(this.panelEl.nativeElement, 0.12);
+  }
 }

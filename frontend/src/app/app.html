@@ -1,8 +1,33 @@
 <div class="admin-shell">
-  <app-sidebar (tabChange)="onTabChange()"></app-sidebar>
 
+  <!-- Mobile backdrop (tap to close sidebar) -->
+  <div
+    class="sidebar-backdrop"
+    [class.visible]="sidebarOpen"
+    (click)="closeSidebar()">
+  </div>
+
+  <!-- Sidebar -->
+  <app-sidebar
+    [class.open]="sidebarOpen"
+    (tabChange)="onTabChange()">
+  </app-sidebar>
+
+  <!-- Main area -->
   <div class="main-area">
-    <!-- White banner header -->
+
+    <!-- Mobile topbar (hamburger + brand + current view) -->
+    <div class="mobile-topbar">
+      <button class="hamburger" [class.open]="sidebarOpen" (click)="toggleSidebar()" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <span class="mobile-brand">Idempotency Lab</span>
+      <span class="mobile-view-label">{{ pageCopy.badge }}</span>
+    </div>
+
+    <!-- Page banner (desktop / tablet) -->
     <header class="page-banner" #banner>
       <div class="banner-top">
         <div class="banner-copy">
@@ -13,7 +38,7 @@
 
         <div class="banner-pills">
           <div class="banner-pill">
-            <span class="pill-label">Active View</span>
+            <span class="pill-label">View</span>
             <span class="pill-value">{{ pageCopy.badge }}</span>
           </div>
           <div class="banner-pill">
@@ -30,10 +55,11 @@
 
     <!-- Scrollable content -->
     <div class="content-area" #contentArea>
-      <app-overview     *ngIf="state.activeTab() === 'overview'"></app-overview>
-      <app-lab          *ngIf="state.activeTab() === 'lab'"></app-lab>
+      <app-overview       *ngIf="state.activeTab() === 'overview'"></app-overview>
+      <app-lab            *ngIf="state.activeTab() === 'lab'"></app-lab>
       <app-bank-simulator *ngIf="state.activeTab() === 'bank'"></app-bank-simulator>
-      <app-timeline     *ngIf="state.activeTab() === 'timeline'"></app-timeline>
+      <app-timeline       *ngIf="state.activeTab() === 'timeline'"></app-timeline>
     </div>
+
   </div>
 </div>
