@@ -20,11 +20,18 @@ export interface PaymentStats {
   bankCalls: number;
 }
 
+export interface SystemHealth {
+  api: string;
+  redis: string;
+  postgres: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentStateService implements OnDestroy {
   stats = signal<PaymentStats>({ totalRequests: 0, successfulPayments: 0, duplicateRequests: 0, bankCalls: 0 });
+  systemHealth = signal<SystemHealth>({ api: 'Offline', redis: 'Unknown', postgres: 'Unknown' });
   bankMode = signal<BankMode>('SUCCESS');
   timeline = signal<string[]>([]);
   activeTab = signal<PaymentTab>('overview');
@@ -49,13 +56,24 @@ export class PaymentStateService implements OnDestroy {
 
   private startPolling() {
     this.fetchStats();
-    this.statsInterval = setInterval(() => this.fetchStats(), 2000);
+    this.fetchSystemHealth();
+    this.statsInterval = setInterval(() => {
+      this.fetchStats();
+      this.fetchSystemHealth();
+    }, 2000);
   }
 
   fetchStats() {
     this.http.get<PaymentStats>('/api/demo/stats').subscribe({
       next: (data) => this.stats.set(data),
       error: () => {}
+    });
+  }
+
+  fetchSystemHealth() {
+    this.http.get<SystemHealth>('/api/system/health').subscribe({
+      next: (data) => this.systemHealth.set(data),
+      error: () => this.systemHealth.set({ api: 'Offline', redis: 'Disconnected', postgres: 'Disconnected' })
     });
   }
 

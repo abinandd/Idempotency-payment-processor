@@ -36,28 +36,21 @@ import { SIDEBAR_NAV_ITEMS } from '../../utils/ui-data';
       <div class="sidebar-system" #systemEl>
         <div class="system-label">System</div>
         <div class="sys-row">
-          <span class="sys-dot online"></span>
+          <span class="sys-dot" [ngClass]="state.systemHealth().api === 'Online' ? 'online' : 'error'"></span>
           API
-          <span class="sys-status online">Online</span>
+          <span class="sys-status" [ngClass]="state.systemHealth().api === 'Online' ? 'online' : 'error'">{{ state.systemHealth().api }}</span>
         </div>
         <div class="sys-row">
-          <span class="sys-dot info"></span>
+          <span class="sys-dot" [ngClass]="state.systemHealth().redis === 'Connected' ? 'info' : 'error'"></span>
           Redis
-          <span class="sys-status info">Connected</span>
+          <span class="sys-status" [ngClass]="state.systemHealth().redis === 'Connected' ? 'info' : 'error'">{{ state.systemHealth().redis }}</span>
         </div>
         <div class="sys-row">
-          <span class="sys-dot info"></span>
+          <span class="sys-dot" [ngClass]="state.systemHealth().postgres === 'Connected' ? 'info' : 'error'"></span>
           Postgres
-          <span class="sys-status info">Connected</span>
+          <span class="sys-status" [ngClass]="state.systemHealth().postgres === 'Connected' ? 'info' : 'error'">{{ state.systemHealth().postgres }}</span>
         </div>
       </div>
-
-      <!-- Footer -->
-      <div class="sidebar-footer" #footerEl>
-        <span class="footer-env">Dev Env</span>
-        <span class="footer-ver">v2.0</span>
-      </div>
-
     </aside>
   `
 })
