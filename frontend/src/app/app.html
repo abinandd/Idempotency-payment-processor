@@ -31,25 +31,11 @@
     <header class="page-banner" #banner>
       <div class="banner-top">
         <div class="banner-copy">
-          <p class="banner-eyebrow">Payments Control Room</p>
           <h1 class="banner-title">{{ pageCopy.title }}</h1>
           <p class="banner-sub">{{ pageCopy.subtitle }}</p>
         </div>
 
-        <div class="banner-pills">
-          <div class="banner-pill">
-            <span class="pill-label">View</span>
-            <span class="pill-value">{{ pageCopy.badge }}</span>
-          </div>
-          <div class="banner-pill">
-            <span class="pill-label">Runtime</span>
-            <span class="pill-value healthy">Healthy</span>
-          </div>
-          <div class="banner-pill">
-            <span class="pill-label">Bank Mode</span>
-            <span class="pill-value">{{ state.bankMode() | uppercase }}</span>
-          </div>
-        </div>
+
       </div>
     </header>
 

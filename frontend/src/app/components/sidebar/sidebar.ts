@@ -13,11 +13,7 @@ import { SIDEBAR_NAV_ITEMS } from '../../utils/ui-data';
 
       <!-- Brand -->
       <div class="sidebar-logo" #logoEl>
-        <div class="logo-icon">
-          <i data-lucide="shield" style="width:19px;height:19px;"></i>
-        </div>
         <div class="logo-text">
-          <span>Realtime Payments</span>
           <strong>Idempotency Lab</strong>
         </div>
       </div>
