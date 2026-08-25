@@ -1,6 +1,6 @@
 import { Component, Output, EventEmitter, AfterViewInit, ElementRef, QueryList, ViewChildren, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaymentStateService } from '../../services/payment-state';
+import { PaymentStateService, PaymentTab } from '../../services/payment-state';
 import { AnimationService } from '../../services/animation.service';
 import { SIDEBAR_NAV_ITEMS } from '../../utils/ui-data';
 
@@ -90,7 +90,7 @@ export class SidebarComponent implements AfterViewInit {
   }
 
   onNav(id: string) {
-    this.state.setTab(id);
+    this.state.setTab(id as PaymentTab);
     this.tabChange.emit();
   }
 }

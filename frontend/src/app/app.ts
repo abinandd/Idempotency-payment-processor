@@ -60,11 +60,20 @@ const PAGE_COPY: Record<string, { title: string; subtitle: string; badge: string
 export class AppComponent implements AfterViewInit, OnDestroy {
   @ViewChild('banner') bannerRef!: ElementRef<HTMLElement>;
   @ViewChild('contentArea') contentRef!: ElementRef<HTMLElement>;
+  sidebarOpen = false;
 
   constructor(
     public state: PaymentStateService,
     private anim: AnimationService
   ) {}
+
+  closeSidebar() {
+    this.sidebarOpen = false;
+  }
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
 
   get pageCopy() {
     return PAGE_COPY[this.state.activeTab()] ?? PAGE_COPY['overview'];
