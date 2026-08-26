@@ -1,8 +1,6 @@
 export const SIDEBAR_NAV_ITEMS = [
-  { id: 'overview', label: 'Overview', icon: 'layout', description: 'Live metrics and pipeline health' },
   { id: 'lab', label: 'Idempotency Lab', icon: 'zap', description: 'Fire concurrent duplicate requests' },
-  { id: 'bank', label: 'Bank Simulator', icon: 'landmark', description: 'Switch provider behaviour instantly' },
-  { id: 'timeline', label: 'Event Timeline', icon: 'list', description: 'Review a compact event feed' }
+  { id: 'bank', label: 'Bank Simulator', icon: 'landmark', description: 'Switch provider behaviour instantly' }
 ] as const;
 
 export const PIPELINE_STEPS = [
