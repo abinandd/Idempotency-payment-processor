@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
+import { Subscription, throwError } from 'rxjs';
 import { NgxSonnerToaster, toast } from 'ngx-sonner';
 import { LucideAngularModule } from 'lucide-angular';
 import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
@@ -169,6 +169,38 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
     }
     .submit-btn:active {
       transform: scale(0.98);
+    }
+    .submit-btn[disabled] {
+      cursor: not-allowed;
+      opacity: 0.85;
+    }
+    .cancel-btn {
+      width: auto;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #ffffff;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .cancel-btn:hover {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+    .action-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
     }
     .spinner {
       animation: rotate 2s linear infinite;
@@ -348,13 +380,20 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
                   </div>
                 </div>
                 
-                <button class="submit-btn" (click)="submitPayment()">
-                  <span *ngIf="activeRequests === 0">Pay Now</span>
-                  <ng-container *ngIf="activeRequests > 0">
-                    <i-lucide name="loader-circle" class="spinner" [size]="18"></i-lucide>
-                    <span>Processing...</span>
-                  </ng-container>
-                </button>
+                <div class="action-row">
+                  <button class="submit-btn" type="button" (click)="submitPayment()" [disabled]="activeRequests > 0">
+                    <span *ngIf="activeRequests === 0">Pay Now</span>
+                    <ng-container *ngIf="activeRequests > 0">
+                      <i-lucide name="loader-circle" class="spinner" [size]="18"></i-lucide>
+                      <span>Processing...</span>
+                    </ng-container>
+                  </button>
+
+                  <button *ngIf="activeRequests > 0" class="cancel-btn" type="button" (click)="cancelPayment()">
+                    <i-lucide name="x-circle" [size]="18"></i-lucide>
+                    <span>Cancel</span>
+                  </button>
+                </div>
                 
                 <div *ngIf="response" class="response-card success">
                   <h3>Payment Successful</h3>
@@ -424,6 +463,8 @@ export class AppComponent implements OnInit, OnDestroy {
   sidebarItems = SIDEBAR_NAV_ITEMS;
   activeTab = 'lab';
   sidebarOpen = false;
+  private currentPaymentSubscription?: Subscription;
+  private currentPaymentLogEntry?: { status: string; color: string };
 
   idempotencyKey = 'payment_' + Date.now();
   amount = 1000;
@@ -471,7 +512,24 @@ export class AppComponent implements OnInit, OnDestroy {
     this.isCurrencyDropdownOpen = false;
   }
 
+  cancelPayment() {
+    if (!this.currentPaymentSubscription || this.activeRequests === 0) {
+      return;
+    }
+
+    this.currentPaymentLogEntry!.status = 'CANCELLED';
+    this.currentPaymentLogEntry!.color = '#64748b';
+    this.currentPaymentSubscription.unsubscribe();
+    this.currentPaymentSubscription = undefined;
+    this.currentPaymentLogEntry = undefined;
+    toast.info('Payment cancelled');
+  }
+
   submitPayment() {
+    if (this.activeRequests > 0) {
+      return;
+    }
+
     this.response = null;
     this.activeRequests++;
     this.stats.totalRequests++;
@@ -490,10 +548,11 @@ export class AppComponent implements OnInit, OnDestroy {
       color: '#94a3b8'
     };
     this.apiLogs.unshift(logEntry);
+    this.currentPaymentLogEntry = logEntry;
 
-    this.http.post('/api/payments', body, { headers })
-      .pipe(catchError((err: HttpErrorResponse) => {
-        this.activeRequests--;
+    this.currentPaymentSubscription = this.http.post('/api/payments', body, { headers })
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
         const errorMsg = err.error?.message || err.error || err.message;
         const displayMsg = typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : String(errorMsg);
         
@@ -508,9 +567,13 @@ export class AppComponent implements OnInit, OnDestroy {
         
         toast.error('Payment Failed', { description: displayMsg });
         return throwError(() => err);
+      }),
+      finalize(() => {
+        this.activeRequests = Math.max(0, this.activeRequests - 1);
+        this.currentPaymentSubscription = undefined;
+        this.currentPaymentLogEntry = undefined;
       }))
       .subscribe(res => {
-        this.activeRequests--;
         this.stats.bankCalls++;
         this.stats.successfulPayments++;
         logEntry.status = 'SUCCESS 200';
