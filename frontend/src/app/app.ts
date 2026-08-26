@@ -5,12 +5,19 @@ import { FormsModule } from '@angular/forms';
 import { catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { NgxSonnerToaster, toast } from 'ngx-sonner';
+import { LucideAngularModule } from 'lucide-angular';
 import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule, NgxSonnerToaster],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    FormsModule,
+    NgxSonnerToaster,
+    LucideAngularModule
+  ],
   styles: [`
     .payment-card {
       font-family: 'Poppins', sans-serif;
@@ -202,6 +209,47 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
       overflow-x: auto;
       color: #15803d;
     }
+    .logo-icon,
+    .nav-icon,
+    .stat-icon,
+    .mode-icon,
+    .empty-state-icon,
+    .chevron-icon,
+    .spinner {
+      display: inline-flex;
+      flex-shrink: 0;
+    }
+    .logo-icon {
+      color: #ffffff;
+    }
+    .nav-item {
+      gap: 10px;
+    }
+    .nav-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+    .stat-icon {
+      margin-bottom: 12px;
+    }
+    .stat-icon svg,
+    .mode-icon svg,
+    .chevron-icon svg,
+    .spinner svg {
+      width: 18px;
+      height: 18px;
+    }
+    .mode-icon {
+      margin-bottom: 12px;
+    }
+    .empty-state-icon {
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+    .chevron-icon svg {
+      width: 16px;
+      height: 16px;
+    }
   `],
   template: `
     <ngx-sonner-toaster position="top-right" />
@@ -211,7 +259,6 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
       
       <aside class="sidebar" [class.open]="sidebarOpen">
         <div class="sidebar-logo">
-          <div class="logo-icon">IL</div>
           <div class="logo-text">
             <span>Payment Processor</span>
             <strong>Idempotency Lab</strong>
@@ -225,7 +272,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
             [class.active]="activeTab === item.id"
             (click)="activeTab = item.id; sidebarOpen = false; $event.stopPropagation()"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle></svg>
+            <i-lucide [name]="item.icon" class="nav-icon" [size]="16"></i-lucide>
             <span>{{ item.label }}</span>
           </button>
         </nav>
@@ -234,7 +281,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
       <div class="main-area">
         <div class="mobile-topbar">
           <button class="hamburger" [class.open]="sidebarOpen" (click)="sidebarOpen = !sidebarOpen; $event.stopPropagation()">
-            <span></span><span></span><span></span>
+            <i-lucide [name]="sidebarOpen ? 'x-circle' : 'menu'" [size]="20"></i-lucide>
           </button>
           <span class="mobile-brand">Idempotency Lab</span>
         </div>
@@ -254,6 +301,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
             <!-- Stats Row -->
             <div class="stat-grid">
               <div *ngFor="let stat of statCards" class="stat-card" [ngClass]="stat.cardClass">
+                <i-lucide [name]="stat.icon" class="stat-icon" [ngClass]="stat.iconClass" [size]="18"></i-lucide>
                 <span class="stat-label-text">{{ stat.label }}</span>
                 <div class="stat-value" [ngClass]="stat.iconClass">{{ stats[stat.id] || 0 }}</div>
                 <div class="stat-desc">{{ stat.description }}</div>
@@ -289,7 +337,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
                     
                     <div class="custom-select" (click)="$event.stopPropagation(); isCurrencyDropdownOpen = !isCurrencyDropdownOpen" [class.open]="isCurrencyDropdownOpen">
                       {{ currency }}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><path d="m6 9 6 6 6-6"/></svg>
+                      <i-lucide name="chevron-down" class="chevron-icon" [size]="16"></i-lucide>
                     </div>
                     <div class="custom-options" *ngIf="isCurrencyDropdownOpen">
                       <div class="custom-option" *ngFor="let c of currencies" (click)="selectCurrency(c)" [class.selected]="currency === c">
@@ -303,7 +351,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
                 <button class="submit-btn" (click)="submitPayment()">
                   <span *ngIf="activeRequests === 0">Pay Now</span>
                   <ng-container *ngIf="activeRequests > 0">
-                    <svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>
+                    <i-lucide name="loader-circle" class="spinner" [size]="18"></i-lucide>
                     <span>Processing...</span>
                   </ng-container>
                 </button>
@@ -346,6 +394,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
                    class="mode-card" 
                    [class.active]="activeBankMode === mode.id"
                    (click)="setBankMode(mode.id)">
+                <i-lucide [name]="mode.icon" class="mode-icon" [ngClass]="mode.colorClass" [size]="18"></i-lucide>
                 <div class="active-indicator"></div>
                 <div class="mode-name" [ngClass]="mode.colorClass">{{ mode.label }}</div>
                 <div class="mode-desc">{{ mode.description }}</div>
@@ -361,7 +410,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
           </div>
 
           <div class="empty-state" *ngIf="activeTab !== 'lab' && activeTab !== 'bank'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #cbd5e1; margin-bottom: 12px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            <i-lucide name="clock" class="empty-state-icon" [size]="32"></i-lucide>
             <strong>Coming soon</strong>
             <span>This section is under development.</span>
           </div>
