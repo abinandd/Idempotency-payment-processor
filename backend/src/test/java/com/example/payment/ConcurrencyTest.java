@@ -1,14 +1,12 @@
 package com.example.payment;
 
+import com.example.payment.bank.BankSimulatorService;
+import com.example.payment.payment.PaymentController;
 import com.example.payment.payment.PaymentRequest;
 import com.example.payment.payment.PaymentResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -20,28 +18,28 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 public class ConcurrencyTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private PaymentController paymentController;
+
+    @Autowired
+    private BankSimulatorService bankSimulatorService;
 
     @Test
     public void testConcurrentRequests() throws InterruptedException {
+        bankSimulatorService.setMode("TIMEOUT", 250L);
+
         int threadCount = 10;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
-        
         String idempotencyKey = UUID.randomUUID().toString();
-        
-        PaymentRequest req = new PaymentRequest();
-        req.setAmount(new BigDecimal("1000.00"));
-        req.setCurrency("INR");
-        req.setCustomerId("customer-123");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Idempotency-Key", idempotencyKey);
-        HttpEntity<PaymentRequest> entity = new HttpEntity<>(req, headers);
+        PaymentRequest request = new PaymentRequest();
+        request.setAmount(new BigDecimal("1000.00"));
+        request.setCurrency("INR");
+        request.setCustomerId("customer-123");
 
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger conflictCount = new AtomicInteger();
@@ -49,18 +47,18 @@ public class ConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executor.submit(() -> {
                 try {
-                    ResponseEntity<PaymentResponse> response = restTemplate.postForEntity("/api/payments", entity, PaymentResponse.class);
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        successCount.incrementAndGet();
-                    } else if (response.getStatusCode().value() == 409) {
+                    var response = paymentController.createPayment(idempotencyKey, request);
+                    if (response.getStatusCode().value() == 409) {
                         conflictCount.incrementAndGet();
+                    } else if (response.getStatusCode().is2xxSuccessful()) {
+                        successCount.incrementAndGet();
                     }
                 } finally {
                     latch.countDown();
                 }
             });
         }
-        
+
         latch.await();
         executor.shutdown();
 

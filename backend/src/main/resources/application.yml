@@ -5,17 +5,13 @@ spring:
   application:
     name: payment-system
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/payment_db}
-    username: ${DATABASE_USERNAME:payment_user}
-    password: ${DATABASE_PASSWORD:payment_password}
-    driver-class-name: org.postgresql.Driver
+    url: ${DATABASE_URL:jdbc:h2:mem:payment_db;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${DATABASE_USERNAME:sa}
+    password: ${DATABASE_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
       host: ${REDIS_HOST:localhost}

@@ -1,61 +1,70 @@
 package com.example.payment.payment;
 
-import com.example.payment.payment.PaymentRequest;
-import com.example.payment.payment.PaymentResponse;
-import com.example.payment.payment.Payment;
-import com.example.payment.payment.PaymentStatus;
-import com.example.payment.payment.PaymentRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.payment.bank.BankSimulationResult;
+import com.example.payment.bank.BankSimulatorService;
+import com.example.payment.demo.DemoStateService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.util.UUID;
 
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final ObjectMapper objectMapper;
+    private final BankSimulatorService bankSimulatorService;
+    private final DemoStateService demoStateService;
 
-    public PaymentService(PaymentRepository paymentRepository, ObjectMapper objectMapper) {
+    public PaymentService(
+            PaymentRepository paymentRepository,
+            BankSimulatorService bankSimulatorService,
+            DemoStateService demoStateService
+    ) {
         this.paymentRepository = paymentRepository;
-        this.objectMapper = objectMapper;
+        this.bankSimulatorService = bankSimulatorService;
+        this.demoStateService = demoStateService;
     }
 
     @Transactional
     public PaymentResponse processNewPayment(PaymentRequest request, String idempotencyKey) {
         String paymentId = "pay_" + UUID.randomUUID().toString().replace("-", "");
-        
+
         Payment payment = new Payment();
         payment.setPaymentId(paymentId);
         payment.setCustomerId(request.getCustomerId());
         payment.setAmount(request.getAmount());
-        payment.setCurrency(request.getCurrency());
+        payment.setCurrency(request.getCurrency().toUpperCase());
         payment.setStatus(PaymentStatus.PROCESSING);
         payment.setIdempotencyKey(idempotencyKey);
-        
+
         paymentRepository.saveAndFlush(payment);
-        
-        // Simulating a real call to a Payment Gateway (e.g. Stripe/Razorpay)
-        // In a realistic app, you'd make an HTTP call here and handle the response.
-        String gatewayTransactionId = "txn_" + UUID.randomUUID().toString();
-        payment.setStatus(PaymentStatus.SUCCESS);
-        payment.setBankTransactionId(gatewayTransactionId);
+        demoStateService.recordBankCall();
+
+        BankSimulationResult bankResult = bankSimulatorService.processPayment(request);
+        payment.setBankTransactionId(bankResult.bankTransactionId());
+        payment.setStatus(bankResult.status());
         paymentRepository.save(payment);
-        
+        demoStateService.recordPaymentOutcome(bankResult.status());
+
         return PaymentResponse.builder()
-            .paymentId(payment.getPaymentId())
-            .status(payment.getStatus())
-            .amount(payment.getAmount())
-            .currency(payment.getCurrency())
-            .build();
+                .paymentId(payment.getPaymentId())
+                .status(payment.getStatus())
+                .amount(payment.getAmount())
+                .currency(payment.getCurrency())
+                .message(bankResult.message())
+                .build();
     }
-    
+
     public PaymentResponse getPayment(String paymentId) {
-        Payment p = paymentRepository.findByPaymentId(paymentId).orElseThrow(() -> new RuntimeException("Not found"));
+        Payment payment = paymentRepository.findByPaymentId(paymentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Payment not found"));
+
         return PaymentResponse.builder()
-            .paymentId(p.getPaymentId())
-            .status(p.getStatus())
-            .amount(p.getAmount())
-            .currency(p.getCurrency())
-            .build();
+                .paymentId(payment.getPaymentId())
+                .status(payment.getStatus())
+                .amount(payment.getAmount())
+                .currency(payment.getCurrency())
+                .build();
     }
 }
