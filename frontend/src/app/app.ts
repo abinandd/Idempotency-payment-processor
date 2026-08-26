@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { catchError } from 'rxjs/operators';
-import { throwError, Subscription, interval } from 'rxjs';
+import { throwError } from 'rxjs';
 import { NgxSonnerToaster, toast } from 'ngx-sonner';
 import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
 
@@ -152,12 +152,34 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
       font-size: 0.95rem;
       cursor: pointer;
       transition: background-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     .submit-btn:hover {
       background: #1d4ed8;
     }
     .submit-btn:active {
       transform: scale(0.98);
+    }
+    .spinner {
+      animation: rotate 2s linear infinite;
+      width: 1.1rem;
+      height: 1.1rem;
+    }
+    .spinner .path {
+      stroke: #ffffff;
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+    @keyframes rotate {
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes dash {
+      0% { stroke-dasharray: 1, 150; stroke-dashoffset: 0; }
+      50% { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+      100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
     }
     .response-card {
       margin-top: 2rem;
@@ -183,9 +205,9 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
   `],
   template: `
     <ngx-sonner-toaster position="top-right" />
-    <div class="admin-shell" (click)="isCurrencyDropdownOpen = false">
+    <div class="admin-shell">
       
-      <div class="sidebar-backdrop" [class.visible]="sidebarOpen" (click)="sidebarOpen = false"></div>
+      <div class="sidebar-backdrop" [class.visible]="sidebarOpen" (click)="sidebarOpen = false; $event.stopPropagation()"></div>
       
       <aside class="sidebar" [class.open]="sidebarOpen">
         <div class="sidebar-logo">
@@ -201,9 +223,8 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
             *ngFor="let item of sidebarItems"
             class="nav-item"
             [class.active]="activeTab === item.id"
-            (click)="activeTab = item.id; sidebarOpen = false"
+            (click)="activeTab = item.id; sidebarOpen = false; $event.stopPropagation()"
           >
-            <!-- A generic dot icon to look nice if no real icons -->
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle></svg>
             <span>{{ item.label }}</span>
           </button>
@@ -221,6 +242,7 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
         <header class="page-banner">
           <div class="banner-top">
             <div class="banner-copy">
+              <div class="banner-eyebrow">Dashboard View</div>
               <h1 class="banner-title">{{ getTabLabel() }}</h1>
               <p class="banner-sub">{{ getTabDescription() }}</p>
             </div>
@@ -238,54 +260,83 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
               </div>
             </div>
 
-            <!-- Payment Form -->
-            <div class="payment-card">
-              <div class="header">
-              <h1>Secure Payment</h1>
-              <p>Complete your transaction securely</p>
-            </div>
-            
-            <div class="form-group">
-              <label>Idempotency Key</label>
-              <input type="text" [(ngModel)]="idempotencyKey" />
-              <small>Ensures duplicate payments are not processed.</small>
-            </div>
-            
-            <div class="form-group">
-              <label>Customer ID</label>
-              <input type="text" [(ngModel)]="customerId" />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group flex-2">
-                <label>Amount</label>
-                <input type="number" [(ngModel)]="amount" />
-              </div>
-              <div class="form-group flex-1">
-                <label>Currency</label>
-                
-                <div class="custom-select" (click)="$event.stopPropagation(); isCurrencyDropdownOpen = !isCurrencyDropdownOpen" [class.open]="isCurrencyDropdownOpen">
-                  {{ currency }}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><path d="m6 9 6 6 6-6"/></svg>
+            <div class="two-col">
+              <!-- Payment Form -->
+              <div class="payment-card">
+                <div class="header">
+                  <h1>Secure Payment</h1>
+                  <p>Complete your transaction securely</p>
                 </div>
-                <div class="custom-options" *ngIf="isCurrencyDropdownOpen">
-                  <div class="custom-option" *ngFor="let c of currencies" (click)="selectCurrency(c)" [class.selected]="currency === c">
-                    {{ c }}
+                
+                <div class="form-group">
+                  <label>Idempotency Key</label>
+                  <input type="text" [(ngModel)]="idempotencyKey" />
+                  <small>Ensures duplicate payments are not processed.</small>
+                </div>
+                
+                <div class="form-group">
+                  <label>Customer ID</label>
+                  <input type="text" [(ngModel)]="customerId" />
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group flex-2">
+                    <label>Amount</label>
+                    <input type="number" [(ngModel)]="amount" />
+                  </div>
+                  <div class="form-group flex-1">
+                    <label>Currency</label>
+                    
+                    <div class="custom-select" (click)="$event.stopPropagation(); isCurrencyDropdownOpen = !isCurrencyDropdownOpen" [class.open]="isCurrencyDropdownOpen">
+                      {{ currency }}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-icon"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                    <div class="custom-options" *ngIf="isCurrencyDropdownOpen">
+                      <div class="custom-option" *ngFor="let c of currencies" (click)="selectCurrency(c)" [class.selected]="currency === c">
+                        {{ c }}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
+                
+                <button class="submit-btn" (click)="submitPayment()">
+                  <span *ngIf="activeRequests === 0">Pay Now</span>
+                  <ng-container *ngIf="activeRequests > 0">
+                    <svg class="spinner" viewBox="0 0 50 50"><circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle></svg>
+                    <span>Processing...</span>
+                  </ng-container>
+                </button>
+                
+                <div *ngIf="response" class="response-card success">
+                  <h3>Payment Successful</h3>
+                  <pre>{{ response | json }}</pre>
+                </div>
+              </div>
 
+              <!-- Live API Feed -->
+              <div class="panel">
+                <div class="panel-head">
+                  <h3>Live API Feed</h3>
+                  <p>Real-time log of outgoing requests</p>
+                </div>
+                <div class="log-feed" style="max-height: 400px; overflow-y: auto;">
+                  <div class="log-entry" *ngFor="let log of apiLogs">
+                    <div class="log-dot" [ngStyle]="{'background': log.color}"></div>
+                    <div class="log-text">
+                      <span style="font-size: 11px; color: #64748b; margin-right: 6px;">{{ log.time | date:'HH:mm:ss.SSS' }}</span>
+                      <strong style="color: #0f172a;">{{ log.method }}</strong> {{ log.url }}
+                      <div style="margin-top: 4px; font-size: 13px; color: #475569;">
+                        Status: <span [ngStyle]="{'color': log.color, 'font-weight': '500'}">{{ log.status }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="apiLogs.length === 0" style="padding: 2rem; text-align: center; color: #64748b; font-size: 0.9rem;">
+                    No requests sent yet. Click "Pay Now" to start.
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <button class="submit-btn" (click)="submitPayment()">
-              Pay Now
-            </button>
-            
-            <div *ngIf="response" class="response-card success">
-              <h3>Payment Successful</h3>
-              <pre>{{ response | json }}</pre>
-            </div>
-          </div>
           </div>
 
           <!-- Bank Simulator Tab -->
@@ -339,28 +390,16 @@ export class AppComponent implements OnInit, OnDestroy {
   activeBankMode = 'SUCCESS';
   
   statCards = STAT_CARDS;
-  stats: any = {};
-  pollSub?: Subscription;
+  stats: any = { totalRequests: 0, bankCalls: 0, successfulPayments: 0, duplicateRequests: 0 };
+  
+  apiLogs: any[] = [];
+
+  activeRequests = 0;
 
   constructor(private http: HttpClient) {}
 
-  ngOnInit() {
-    this.fetchStats();
-    this.pollSub = interval(2000).subscribe(() => this.fetchStats());
-  }
-
-  ngOnDestroy() {
-    if (this.pollSub) {
-      this.pollSub.unsubscribe();
-    }
-  }
-
-  fetchStats() {
-    this.http.get('/api/demo/stats').subscribe({
-      next: (res) => this.stats = res,
-      error: () => {} // ignore mock API errors
-    });
-  }
+  ngOnInit() {}
+  ngOnDestroy() {}
 
   setBankMode(modeId: string) {
     this.activeBankMode = modeId;
@@ -385,6 +424,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   submitPayment() {
     this.response = null;
+    this.activeRequests++;
+    this.stats.totalRequests++;
     const headers = new HttpHeaders().set('Idempotency-Key', this.idempotencyKey);
     const body = {
       customerId: this.customerId,
@@ -392,14 +433,39 @@ export class AppComponent implements OnInit, OnDestroy {
       currency: this.currency
     };
 
+    const logEntry = {
+      time: new Date(),
+      method: 'POST',
+      url: '/api/payments',
+      status: 'PENDING...',
+      color: '#94a3b8'
+    };
+    this.apiLogs.unshift(logEntry);
+
     this.http.post('/api/payments', body, { headers })
       .pipe(catchError((err: HttpErrorResponse) => {
+        this.activeRequests--;
         const errorMsg = err.error?.message || err.error || err.message;
         const displayMsg = typeof errorMsg === 'object' ? JSON.stringify(errorMsg) : String(errorMsg);
+        
+        if (err.status === 409) {
+          this.stats.duplicateRequests++;
+          logEntry.status = `DUPLICATE ${err.status} - ${displayMsg}`;
+          logEntry.color = '#d97706';
+        } else {
+          logEntry.status = `ERROR ${err.status} - ${displayMsg}`;
+          logEntry.color = '#dc2626';
+        }
+        
         toast.error('Payment Failed', { description: displayMsg });
         return throwError(() => err);
       }))
       .subscribe(res => {
+        this.activeRequests--;
+        this.stats.bankCalls++;
+        this.stats.successfulPayments++;
+        logEntry.status = 'SUCCESS 200';
+        logEntry.color = '#16a34a';
         this.response = res;
       });
   }

@@ -199,7 +199,7 @@ app-root {
   overflow: hidden;
   min-width: 0;
   background: var(--bg);
-  height: 100vh;
+  height: 100%;
 }
 
 /* ── Page banner ────────────────────────────────────────────── */
@@ -285,9 +285,9 @@ app-root {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 36px 40px;
-  height: 100%;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+  -webkit-overflow-scrolling: touch;
 }
 .content-area::-webkit-scrollbar { width: 5px; }
 .content-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
@@ -647,10 +647,12 @@ app-root {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.3s ease;
 }
 .sidebar-backdrop.visible {
   opacity: 1;
+  pointer-events: auto;
 }
 
 /* Mobile topbar strip */
@@ -735,7 +737,7 @@ app-root {
 ══════════════════════════════════════════════════════════════ */
 @media (max-width: 767px) {
 
-  html, body { overflow: hidden; }
+  html, body { overflow: hidden; touch-action: auto; }
 
   :root { --sidebar-w: 78vw; }
 
@@ -744,6 +746,8 @@ app-root {
     flex-direction: column;
     position: relative;
     overflow: hidden;
+    height: 100vh;
+    height: 100dvh;
   }
 
   /* ── Sidebar becomes fixed slide-over ── */
@@ -767,10 +771,12 @@ app-root {
   /* Backdrop shown on mobile */
   .sidebar-backdrop { display: block; }
 
-  /* ── Main area fills remaining height ── */
+  /* ── Main area: flex column, fills remaining height ── */
   .main-area {
     flex: 1;
-    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
     overflow: hidden;
   }
 
@@ -787,7 +793,13 @@ app-root {
   .hamburger { display: flex; }
 
   /* ── Content pads for mobile ── */
-  .content-area { padding: 20px 16px 32px; }
+  .content-area {
+    padding: 20px 16px 32px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
   /* ── 4 → 1 col stat grid ── */
   .stat-grid { grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
