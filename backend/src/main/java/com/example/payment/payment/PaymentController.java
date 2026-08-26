@@ -5,7 +5,6 @@ import com.example.payment.payment.PaymentResponse;
 import com.example.payment.idempotency.IdempotencyException;
 import com.example.payment.idempotency.IdempotencyService;
 import com.example.payment.payment.PaymentService;
-import com.example.payment.stats.StatsService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,13 +19,11 @@ public class PaymentController {
     
     private final PaymentService paymentService;
     private final IdempotencyService idempotencyService;
-    private final StatsService statsService;
     private final ObjectMapper objectMapper;
 
-    public PaymentController(PaymentService paymentService, IdempotencyService idempotencyService, StatsService statsService, ObjectMapper objectMapper) {
+    public PaymentController(PaymentService paymentService, IdempotencyService idempotencyService, ObjectMapper objectMapper) {
         this.paymentService = paymentService;
         this.idempotencyService = idempotencyService;
-        this.statsService = statsService;
         this.objectMapper = objectMapper;
     }
 
@@ -35,14 +32,12 @@ public class PaymentController {
             @RequestHeader(value = "Idempotency-Key", required = true) String idempotencyKey,
             @Valid @RequestBody PaymentRequest request) {
         
-        statsService.incrementRequests();
         String payloadHash = idempotencyService.generatePayloadHash(request);
         
         boolean acquired = idempotencyService.acquireLock(idempotencyKey, payloadHash);
         
         if (!acquired) {
             String state = idempotencyService.getState(idempotencyKey);
-            statsService.incrementDuplicateRequests();
             if (state != null) {
                 if (state.startsWith("PROCESSING:")) {
                     String storedHash = state.substring("PROCESSING:".length());

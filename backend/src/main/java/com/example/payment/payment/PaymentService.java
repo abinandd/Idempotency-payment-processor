@@ -1,13 +1,10 @@
 package com.example.payment.payment;
 
-import com.example.payment.stats.StatsService;
-
 import com.example.payment.payment.PaymentRequest;
 import com.example.payment.payment.PaymentResponse;
 import com.example.payment.payment.Payment;
 import com.example.payment.payment.PaymentStatus;
 import com.example.payment.payment.PaymentRepository;
-import com.example.payment.bank.BankSimulatorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,14 +13,10 @@ import java.util.UUID;
 @Service
 public class PaymentService {
     private final PaymentRepository paymentRepository;
-    private final BankSimulatorService bankSimulator;
-    private final StatsService statsService;
     private final ObjectMapper objectMapper;
 
-    public PaymentService(PaymentRepository paymentRepository, BankSimulatorService bankSimulator, StatsService statsService, ObjectMapper objectMapper) {
+    public PaymentService(PaymentRepository paymentRepository, ObjectMapper objectMapper) {
         this.paymentRepository = paymentRepository;
-        this.bankSimulator = bankSimulator;
-        this.statsService = statsService;
         this.objectMapper = objectMapper;
     }
 
@@ -41,17 +34,13 @@ public class PaymentService {
         
         paymentRepository.saveAndFlush(payment);
         
-        statsService.incrementBankCalls();
-        BankSimulatorService.BankResult result = bankSimulator.processPayment(paymentId);
-        
-        payment.setStatus(result.getStatus());
-        payment.setBankTransactionId(result.getTransactionId());
+        // Simulating a real call to a Payment Gateway (e.g. Stripe/Razorpay)
+        // In a realistic app, you'd make an HTTP call here and handle the response.
+        String gatewayTransactionId = "txn_" + UUID.randomUUID().toString();
+        payment.setStatus(PaymentStatus.SUCCESS);
+        payment.setBankTransactionId(gatewayTransactionId);
         paymentRepository.save(payment);
         
-        if (result.getStatus() == PaymentStatus.SUCCESS) {
-            statsService.incrementSuccessfulPayments();
-        }
-
         return PaymentResponse.builder()
             .paymentId(payment.getPaymentId())
             .status(payment.getStatus())

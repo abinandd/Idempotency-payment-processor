@@ -45,6 +45,8 @@ export class PaymentStateService implements OnDestroy {
   private statsInterval?: ReturnType<typeof setInterval>;
 
   constructor(private http: HttpClient) {
+    this.fetchUiConfig();
+    this.fetchBankStatus();
     this.startPolling();
   }
 
@@ -57,9 +59,11 @@ export class PaymentStateService implements OnDestroy {
   private startPolling() {
     this.fetchStats();
     this.fetchSystemHealth();
+    this.fetchTimeline();
     this.statsInterval = setInterval(() => {
       this.fetchStats();
       this.fetchSystemHealth();
+      this.fetchTimeline();
     }, 2000);
   }
 
@@ -77,6 +81,26 @@ export class PaymentStateService implements OnDestroy {
     });
   }
 
+  uiConfig = signal<any>({ sidebarNavItems: [], pageCopy: {}, statCards: [] });
+
+  fetchUiConfig() {
+    this.http.get<any>('/api/ui/config').subscribe({
+      next: (data) => this.uiConfig.set(data),
+      error: () => {}
+    });
+  }
+
+  fetchBankStatus() {
+    this.http.get<any>('/api/demo/bank/status').subscribe({
+      next: (data) => {
+        if (data && data.mode) {
+          this.bankMode.set(data.mode);
+        }
+      },
+      error: () => {}
+    });
+  }
+
   setLabAmount(amount: number) {
     const normalized = Number.isFinite(amount) ? Math.max(1, Math.round(amount)) : 1;
     this.labAmount.set(normalized);
@@ -87,13 +111,18 @@ export class PaymentStateService implements OnDestroy {
     this.labRequestCount.set(normalized);
   }
 
-  private formatTimelineEntry(message: string) {
-    const stamp = new Date().toLocaleTimeString([], { hour12: false });
-    return `${stamp} · ${message}`;
+  fetchTimeline() {
+    this.http.get<string[]>('/api/demo/timeline').subscribe({
+      next: (data) => this.timeline.set(data),
+      error: () => {}
+    });
   }
 
   addTimeline(msg: string) {
-    this.timeline.update(entries => [this.formatTimelineEntry(msg), ...entries].slice(0, 50));
+    this.http.post('/api/demo/timeline', { message: msg }).subscribe({
+      next: () => this.fetchTimeline(),
+      error: () => {}
+    });
   }
 
   setTab(tab: PaymentTab) {
