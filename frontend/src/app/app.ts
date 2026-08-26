@@ -336,7 +336,6 @@ import { SIDEBAR_NAV_ITEMS, BANK_MODES, STAT_CARDS } from './utils/ui-data';
                 <i-lucide [name]="stat.icon" class="stat-icon" [ngClass]="stat.iconClass" [size]="18"></i-lucide>
                 <span class="stat-label-text">{{ stat.label }}</span>
                 <div class="stat-value" [ngClass]="stat.iconClass">{{ stats[stat.id] || 0 }}</div>
-                <div class="stat-desc">{{ stat.description }}</div>
               </div>
             </div>
 

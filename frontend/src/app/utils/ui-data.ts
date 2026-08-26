@@ -36,8 +36,8 @@ export const BANK_MODES = [
 ] as const;
 
 export const STAT_CARDS = [
-  { id: 'totalRequests', label: 'Total Requests', icon: 'activity', iconClass: 'text-muted', cardClass: '', description: 'Every payment attempt reaching the API' },
-  { id: 'bankCalls', label: 'Actual Bank Calls', icon: 'landmark', iconClass: 'text-muted', cardClass: '', description: 'Only the first request for each key should pass through' },
-  { id: 'successfulPayments', label: 'Successful Payments', icon: 'check-circle', iconClass: 'text-success', cardClass: 'success-card', description: 'Payments that completed and were committed' },
-  { id: 'duplicateRequests', label: 'Duplicates Blocked', icon: 'shield', iconClass: 'text-accent', cardClass: 'safe-card', description: 'Requests stopped before they reached the bank' }
+  { id: 'totalRequests', label: 'Total Requests', icon: 'activity', iconClass: 'text-muted', cardClass: '' },
+  { id: 'bankCalls', label: 'Actual Bank Calls', icon: 'landmark', iconClass: 'text-muted', cardClass: '' },
+  { id: 'successfulPayments', label: 'Successful Payments', icon: 'check-circle', iconClass: 'text-success', cardClass: 'success-card' },
+  { id: 'duplicateRequests', label: 'Duplicates Blocked', icon: 'shield', iconClass: 'text-accent', cardClass: 'safe-card' }
 ] as const;
