@@ -2,3 +2,8 @@ node_modules/
 *.class
 *.jar
 target/
+
+# Environment secrets - never commit these
+.env
+**/.env
+*.env
