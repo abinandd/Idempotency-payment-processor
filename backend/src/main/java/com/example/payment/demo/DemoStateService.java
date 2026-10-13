@@ -50,6 +50,15 @@ public class DemoStateService {
         addTimeline(message);
     }
 
+    public void resetStats() {
+        totalRequests.set(0);
+        bankCalls.set(0);
+        successfulPayments.set(0);
+        duplicateRequests.set(0);
+        timeline.clear();
+        addTimeline("Demo statistics reset");
+    }
+
     public Map<String, Long> snapshotStats() {
         Map<String, Long> stats = new LinkedHashMap<>();
         stats.put("totalRequests", totalRequests.get());

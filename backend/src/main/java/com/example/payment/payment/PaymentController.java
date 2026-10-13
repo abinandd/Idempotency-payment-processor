@@ -63,6 +63,8 @@ public class PaymentController {
                     if (!storedHash.equals(payloadHash)) {
                         throw new IdempotencyException("The idempotency key was already used with a different request payload");
                     }
+                    demoStateService.recordDuplicateRequest();
+                    demoStateService.recordTimelineMessage("Idempotent replay: cached response returned");
                     try {
                         PaymentResponse response = objectMapper.readValue(parts[1], PaymentResponse.class);
                         return ResponseEntity.ok(response);

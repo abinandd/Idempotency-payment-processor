@@ -55,6 +55,19 @@ public class IdempotencyService {
             }
         }
     }
+
+    public void updateReconciledState(String idempotencyKey, Object response) {
+        if (idempotencyKey == null) return;
+        String currentState = getState(idempotencyKey);
+        if (currentState != null && currentState.startsWith("COMPLETED:")) {
+            String[] parts = currentState.substring("COMPLETED:".length()).split(":", 2);
+            if (parts.length == 2) {
+                String payloadHash = parts[0];
+                updateState(idempotencyKey, response, payloadHash);
+            }
+        }
+    }
+
     
     public String getState(String idempotencyKey) {
         String key = keyFor(idempotencyKey);

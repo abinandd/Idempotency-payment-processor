@@ -1,6 +1,7 @@
 export const SIDEBAR_NAV_ITEMS = [
-  { id: 'lab', label: 'Idempotency Lab', icon: 'zap', description: 'Fire concurrent duplicate requests' },
-  { id: 'bank', label: 'Bank Simulator', icon: 'landmark', description: 'Switch provider behaviour instantly' }
+  { id: 'lab', label: 'Idempotency Lab', icon: 'zap', description: 'Fire concurrent duplicate requests and observe single bank execution' },
+  { id: 'bank', label: 'Bank Simulator', icon: 'landmark', description: 'Switch provider behavior: Success, Hard Failure, or Timeout' },
+  { id: 'timeline', label: 'System Timeline', icon: 'activity', description: 'Live event stream of idempotency locks, bank calls, and reconciliation' }
 ] as const;
 
 export const PIPELINE_STEPS = [

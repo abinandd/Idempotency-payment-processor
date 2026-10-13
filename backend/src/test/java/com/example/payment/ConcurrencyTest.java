@@ -65,4 +65,50 @@ public class ConcurrencyTest {
         assertTrue(successCount.get() > 0);
         assertEquals(10, successCount.get() + conflictCount.get());
     }
+
+    @Test
+    public void testIdempotentReplayReturnsCachedResponse() {
+        bankSimulatorService.setMode("SUCCESS", 0L);
+        String idempotencyKey = UUID.randomUUID().toString();
+
+        PaymentRequest request = new PaymentRequest();
+        request.setAmount(new BigDecimal("500.00"));
+        request.setCurrency("USD");
+        request.setCustomerId("customer-replay");
+
+        var firstResponse = paymentController.createPayment(idempotencyKey, request);
+        assertEquals(200, firstResponse.getStatusCode().value());
+        String firstPaymentId = firstResponse.getBody().getPaymentId();
+
+        // Second request with exact same key and payload
+        var secondResponse = paymentController.createPayment(idempotencyKey, request);
+        assertEquals(200, secondResponse.getStatusCode().value());
+        assertEquals(firstPaymentId, secondResponse.getBody().getPaymentId());
+        assertEquals(firstResponse.getBody().getAmount(), secondResponse.getBody().getAmount());
+    }
+
+    @Test
+    public void testDifferentPayloadWithSameKeyFails() {
+        bankSimulatorService.setMode("SUCCESS", 0L);
+        String idempotencyKey = UUID.randomUUID().toString();
+
+        PaymentRequest request1 = new PaymentRequest();
+        request1.setAmount(new BigDecimal("500.00"));
+        request1.setCurrency("USD");
+        request1.setCustomerId("customer-mismatch");
+
+        var response1 = paymentController.createPayment(idempotencyKey, request1);
+        assertEquals(200, response1.getStatusCode().value());
+
+        // Same key, different amount
+        PaymentRequest request2 = new PaymentRequest();
+        request2.setAmount(new BigDecimal("999.00"));
+        request2.setCurrency("USD");
+        request2.setCustomerId("customer-mismatch");
+
+        org.junit.jupiter.api.Assertions.assertThrows(
+                com.example.payment.idempotency.IdempotencyException.class,
+                () -> paymentController.createPayment(idempotencyKey, request2)
+        );
+    }
 }
