@@ -859,3 +859,27 @@ app-root {
   .panel-body  { padding: 16px 14px 20px; }
   .table-header, .table-row { padding: 9px 14px; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   BURST TABLE & TACTILE TOUCH FEEDBACK
+══════════════════════════════════════════════════════════════ */
+.burst-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.burst-table-header,
+.burst-table-row {
+  min-width: 500px;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+  transition: transform 0.08s ease;
+}
+
+.mode-card:active {
+  transform: scale(0.98);
+  transition: transform 0.08s ease;
+}
+

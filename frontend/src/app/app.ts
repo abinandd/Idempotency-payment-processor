@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -1055,6 +1055,21 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  @HostListener('document:click')
+  onDocumentClick() {
+    this.isCurrencyDropdownOpen = false;
+  }
+
+  formatIsoTime(isoStr: string): string {
+    if (!isoStr) return '';
+    try {
+      const date = new Date(isoStr);
+      return isNaN(date.getTime()) ? isoStr : date.toLocaleTimeString();
+    } catch {
+      return isoStr;
+    }
+  }
+
   fetchTimeline() {
     this.http.get<string[]>('/api/demo/timeline').subscribe({
       next: (list) => {
@@ -1062,7 +1077,7 @@ export class AppComponent implements OnInit, OnDestroy {
           this.timelineEvents = list.map(item => {
             const parts = item.split(' - ');
             if (parts.length >= 2) {
-              const time = parts[0];
+              const time = this.formatIsoTime(parts[0]);
               const message = parts.slice(1).join(' - ');
               return { time, message };
             }
@@ -1156,6 +1171,19 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (!this.customerId || !this.customerId.trim()) {
+      toast.warning('Please enter a Customer ID');
+      return;
+    }
+    if (!this.amount || this.amount <= 0) {
+      toast.warning('Please enter an amount greater than 0');
+      return;
+    }
+    if (!this.idempotencyKey || !this.idempotencyKey.trim()) {
+      toast.warning('Please provide an Idempotency Key');
+      return;
+    }
+
     this.response = null;
     this.activeRequests++;
     const headers = new HttpHeaders().set('Idempotency-Key', this.idempotencyKey);
@@ -1223,6 +1251,10 @@ export class AppComponent implements OnInit, OnDestroy {
   async launchBurst() {
     if (this.isBurstRunning || this.activeRequests > 0) {
       return;
+    }
+
+    if (!this.burstKey || !this.burstKey.trim()) {
+      this.regenerateBurstKey();
     }
 
     this.isBurstRunning = true;

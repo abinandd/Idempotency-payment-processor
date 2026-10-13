@@ -33,20 +33,29 @@ A production-style payment gateway demonstrating idempotency, concurrency contro
 
 ## Running Locally
 
-### Prerequisites
+### Option A: Complete Stack via Docker Compose (Production Ready)
+Spins up PostgreSQL 16, Redis 7, Spring Boot Backend, and Nginx-served Angular Frontend with a single command:
+```bash
+docker compose up --build
+```
+- Frontend UI: `http://localhost:3000`
+- Backend API: `http://localhost:8080`
+
+### Option B: Standalone for Development
+#### Prerequisites
 - Java 21
 - Node.js 20+ & npm
-- (Optional) Redis server on `localhost:6379` (an automatic in-memory fallback is used if Redis is not running)
-- (Optional) PostgreSQL on `localhost:5432` (an automatic in-memory H2 PostgreSQL-compatible database is used if `DATABASE_URL` is omitted)
+- (Optional) Redis server on `localhost:6379` (automatic in-memory fallback if Redis is not running)
+- (Optional) PostgreSQL on `localhost:5432` (automatic in-memory H2 database if `DATABASE_URL` is omitted)
 
-### 1. Run the Backend
+#### 1. Run the Backend
 ```bash
 cd backend
 ./mvnw spring-boot:run
 ```
 Backend starts on `http://localhost:8080`.
 
-### 2. Run the Frontend
+#### 2. Run the Frontend
 ```bash
 cd frontend
 npm install

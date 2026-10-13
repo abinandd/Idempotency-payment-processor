@@ -43,15 +43,22 @@ public class IdempotencyService {
     
     public void updateState(String idempotencyKey, Object response, String payloadHash) {
         String key = keyFor(idempotencyKey);
+        String val = null;
         try {
             String json = objectMapper.writeValueAsString(response);
-            redisTemplate.opsForValue().set(key, "COMPLETED:" + payloadHash + ":" + json, Duration.ofSeconds(ttlSeconds));
+            val = "COMPLETED:" + payloadHash + ":" + json;
+            redisTemplate.opsForValue().set(key, val, Duration.ofSeconds(ttlSeconds));
+            fallbackStore.put(key, val);
         } catch (Exception exception) {
-            try {
-                String json = objectMapper.writeValueAsString(response);
-                fallbackStore.put(key, "COMPLETED:" + payloadHash + ":" + json);
-            } catch (Exception nestedException) {
-                throw new RuntimeException("Failed to update idempotency state", nestedException);
+            if (val != null) {
+                fallbackStore.put(key, val);
+            } else {
+                try {
+                    String json = objectMapper.writeValueAsString(response);
+                    fallbackStore.put(key, "COMPLETED:" + payloadHash + ":" + json);
+                } catch (Exception nestedException) {
+                    throw new RuntimeException("Failed to update idempotency state", nestedException);
+                }
             }
         }
     }
@@ -68,14 +75,17 @@ public class IdempotencyService {
         }
     }
 
-    
     public String getState(String idempotencyKey) {
         String key = keyFor(idempotencyKey);
         try {
-            return redisTemplate.opsForValue().get(key);
+            String val = redisTemplate.opsForValue().get(key);
+            if (val != null) {
+                return val;
+            }
         } catch (Exception exception) {
-            return fallbackStore.get(key);
+            // fallback to in-memory store
         }
+        return fallbackStore.get(key);
     }
     
     public String generatePayloadHash(Object payload) {
