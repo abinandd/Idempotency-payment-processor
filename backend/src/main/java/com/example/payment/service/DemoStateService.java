@@ -1,7 +1,7 @@
-package com.example.payment.demo;
+package com.example.payment.service;
 
-import com.example.payment.bank.BankMode;
-import com.example.payment.payment.PaymentStatus;
+import com.example.payment.model.BankMode;
+import com.example.payment.model.PaymentStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;

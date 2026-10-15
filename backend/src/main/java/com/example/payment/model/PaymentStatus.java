@@ -1,4 +1,5 @@
-package com.example.payment.payment;
+package com.example.payment.model;
+
 public enum PaymentStatus {
     PROCESSING, SUCCESS, FAILED, UNKNOWN
 }

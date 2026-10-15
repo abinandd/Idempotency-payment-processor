@@ -1,4 +1,4 @@
-package com.example.payment.bank;
+package com.example.payment.model;
 
 public enum BankMode {
     SUCCESS,

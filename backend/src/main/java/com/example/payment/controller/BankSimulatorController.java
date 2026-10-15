@@ -1,9 +1,11 @@
-package com.example.payment.bank;
+package com.example.payment.controller;
 
-import com.example.payment.demo.DemoStateService;
+import com.example.payment.dto.BankModeRequest;
+import com.example.payment.model.BankMode;
+import com.example.payment.service.BankSimulatorService;
+import com.example.payment.service.DemoStateService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,7 +16,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/demo/bank")
-@CrossOrigin("*")
 public class BankSimulatorController {
     private final BankSimulatorService bankSimulatorService;
     private final DemoStateService demoStateService;

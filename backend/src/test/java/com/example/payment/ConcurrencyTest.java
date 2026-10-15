@@ -1,9 +1,8 @@
 package com.example.payment;
 
-import com.example.payment.bank.BankSimulatorService;
-import com.example.payment.payment.PaymentController;
-import com.example.payment.payment.PaymentRequest;
-import com.example.payment.payment.PaymentResponse;
+import com.example.payment.service.BankSimulatorService;
+import com.example.payment.controller.PaymentController;
+import com.example.payment.dto.PaymentRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -107,7 +106,7 @@ public class ConcurrencyTest {
         request2.setCustomerId("customer-mismatch");
 
         org.junit.jupiter.api.Assertions.assertThrows(
-                com.example.payment.idempotency.IdempotencyException.class,
+                com.example.payment.exception.IdempotencyException.class,
                 () -> paymentController.createPayment(idempotencyKey, request2)
         );
     }

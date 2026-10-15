@@ -1,37 +1,31 @@
-package com.example.payment.demo;
+package com.example.payment.controller;
 
-import com.example.payment.bank.BankSimulatorService;
-import com.example.payment.payment.PaymentRepository;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import com.example.payment.service.BankSimulatorService;
+import com.example.payment.service.DemoStateService;
+import com.example.payment.service.HealthService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping
-@CrossOrigin("*")
 public class DemoController {
     private final DemoStateService demoStateService;
     private final BankSimulatorService bankSimulatorService;
-    private final StringRedisTemplate redisTemplate;
-    private final PaymentRepository paymentRepository;
+    private final HealthService healthService;
 
     public DemoController(
             DemoStateService demoStateService,
             BankSimulatorService bankSimulatorService,
-            StringRedisTemplate redisTemplate,
-            PaymentRepository paymentRepository
+            HealthService healthService
     ) {
         this.demoStateService = demoStateService;
         this.bankSimulatorService = bankSimulatorService;
-        this.redisTemplate = redisTemplate;
-        this.paymentRepository = paymentRepository;
+        this.healthService = healthService;
     }
 
     @GetMapping("/api/demo/stats")
@@ -46,7 +40,7 @@ public class DemoController {
     }
 
     @GetMapping("/api/demo/timeline")
-    public ResponseEntity<?> timeline() {
+    public ResponseEntity<List<String>> timeline() {
         return ResponseEntity.ok(demoStateService.snapshotTimeline());
     }
 
@@ -59,25 +53,7 @@ public class DemoController {
 
     @GetMapping("/api/system/health")
     public ResponseEntity<Map<String, String>> health() {
-        String redisHealth = "Connected";
-        try {
-            redisTemplate.getConnectionFactory().getConnection().ping();
-        } catch (Exception e) {
-            redisHealth = "Disconnected";
-        }
-
-        String dbHealth = "Connected";
-        try {
-            paymentRepository.count();
-        } catch (Exception e) {
-            dbHealth = "Disconnected";
-        }
-
-        return ResponseEntity.ok(Map.of(
-                "api", "Online",
-                "redis", redisHealth,
-                "postgres", dbHealth
-        ));
+        return ResponseEntity.ok(healthService.check());
     }
 
     @GetMapping("/api/ui/config")

@@ -1,6 +1,5 @@
 package com.example.payment.exception;
 
-import com.example.payment.idempotency.IdempotencyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -44,7 +43,7 @@ public class GlobalExceptionHandler {
                 "message", ex.getReason() == null ? "Request failed" : ex.getReason()
         ));
     }
-    
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
