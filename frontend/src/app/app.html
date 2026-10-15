@@ -1,0 +1,357 @@
+<ngx-sonner-toaster position="top-right" />
+<div class="admin-shell">
+  
+  <div class="sidebar-backdrop" [class.visible]="sidebarOpen" (click)="sidebarOpen = false; $event.stopPropagation()"></div>
+  
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <i-lucide name="zap" [size]="20"></i-lucide>
+      </div>
+      <div class="logo-text">
+        <span>Payment Processor</span>
+        <strong>Idempotency Lab</strong>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <button 
+        *ngFor="let item of sidebarItems"
+        class="nav-item"
+        [class.active]="activeTab === item.id"
+        (click)="activeTab = item.id; sidebarOpen = false; $event.stopPropagation()"
+      >
+        <i-lucide [name]="item.icon" class="nav-icon" [size]="16"></i-lucide>
+        <span>{{ item.label }}</span>
+      </button>
+    </nav>
+
+    <!-- System Health Section in Sidebar -->
+    <div class="sidebar-system">
+      <div class="system-label">System Health</div>
+      <div class="sys-row">
+        <span class="sys-dot" [ngClass]="systemHealth.api === 'Online' ? 'online' : 'error'"></span>
+        API Gateway
+        <span class="sys-status" [ngClass]="systemHealth.api === 'Online' ? 'online' : 'error'">{{ systemHealth.api }}</span>
+      </div>
+      <div class="sys-row">
+        <span class="sys-dot" [ngClass]="systemHealth.redis === 'Connected' ? 'info' : 'error'"></span>
+        Redis (Lock)
+        <span class="sys-status" [ngClass]="systemHealth.redis === 'Connected' ? 'info' : 'error'">{{ systemHealth.redis }}</span>
+      </div>
+      <div class="sys-row">
+        <span class="sys-dot" [ngClass]="systemHealth.postgres === 'Connected' ? 'online' : 'error'"></span>
+        PostgreSQL (DB)
+        <span class="sys-status" [ngClass]="systemHealth.postgres === 'Connected' ? 'online' : 'error'">{{ systemHealth.postgres }}</span>
+      </div>
+      <div class="sys-row" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);">
+        <span class="sys-dot online"></span>
+        Bank Mode
+        <span class="sys-status" style="color: #93c5fd; font-weight: 600;">{{ activeBankMode }}</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <span class="footer-env">PRODUCTION DEMO</span>
+      <span class="footer-ver">v1.0.0</span>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="mobile-topbar">
+      <button class="hamburger" [class.open]="sidebarOpen" (click)="sidebarOpen = !sidebarOpen; $event.stopPropagation()">
+        <i-lucide [name]="sidebarOpen ? 'x-circle' : 'menu'" [size]="20"></i-lucide>
+      </button>
+      <span class="mobile-brand">Idempotency Lab</span>
+    </div>
+
+    <header class="page-banner">
+      <div class="banner-top">
+        <div class="banner-copy">
+          <div class="banner-eyebrow">Production Payment Gateway</div>
+          <h1 class="banner-title">{{ getTabLabel() }}</h1>
+          <p class="banner-sub">{{ getTabDescription() }}</p>
+        </div>
+        <div class="banner-actions">
+          <button class="btn-reset" (click)="resetStats()" title="Reset all demo metrics">
+            <i-lucide name="rotate-ccw" [size]="14"></i-lucide>
+            <span>Reset Stats</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Stats Grid -->
+      <div class="stat-grid">
+        <div *ngFor="let stat of statCards" class="stat-card" [ngClass]="stat.cardClass">
+          <i-lucide [name]="stat.icon" class="stat-icon" [ngClass]="stat.iconClass" [size]="18"></i-lucide>
+          <span class="stat-label-text">{{ stat.label }}</span>
+          <div class="stat-value" [ngClass]="stat.iconClass">{{ stats[stat.id] || 0 }}</div>
+        </div>
+      </div>
+
+      <!-- ================= LAB TAB ================= -->
+      <div *ngIf="activeTab === 'lab'">
+
+        <!-- Concurrent Requests Hero Section -->
+        <div class="burst-hero">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h2>Simulate Concurrent Requests</h2>
+              <p>
+                Fire 10 identical payment requests simultaneously with the same <code>Idempotency-Key</code>.
+                Observe that atomic Redis <code>SET NX</code> allows only 1 request to hit the bank while 9 are safely rejected or cached.
+              </p>
+            </div>
+          </div>
+
+          <div class="burst-controls">
+            <div class="burst-control-group">
+              <label>Requests Count</label>
+              <div class="burst-count-pills">
+                <button *ngFor="let n of [5, 10, 15, 20]" 
+                        class="count-pill" 
+                        [class.active]="burstCount === n" 
+                        (click)="burstCount = n">
+                  {{ n }}
+                </button>
+              </div>
+            </div>
+
+            <div class="burst-control-group" style="flex: 1; min-width: 200px;">
+              <label>Shared Idempotency Key</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="text" [(ngModel)]="burstKey" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); color: #fff; font-size: 0.85rem; padding: 7px 12px;" />
+                <button class="btn-icon-subtle" (click)="regenerateBurstKey()" style="background: rgba(255,255,255,0.2); color: #fff; border-color: rgba(255,255,255,0.3); padding: 7px 10px;" title="Generate new key">
+                  <i-lucide name="refresh-cw" [size]="14"></i-lucide>
+                </button>
+              </div>
+            </div>
+
+            <div class="burst-control-group">
+              <label>&nbsp;</label>
+              <button class="burst-launch-btn" (click)="launchBurst()" [disabled]="isBurstRunning || activeRequests > 0">
+                <ng-container *ngIf="!isBurstRunning">
+                  <i-lucide name="play" [size]="16"></i-lucide>
+                  <span>Fire {{ burstCount }} Concurrent Requests</span>
+                </ng-container>
+                <ng-container *ngIf="isBurstRunning">
+                  <i-lucide name="loader-circle" class="spinner" [size]="16"></i-lucide>
+                  <span>Firing {{ burstCount }} Requests...</span>
+                </ng-container>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Burst Results Summary & Table -->
+        <div *ngIf="burstResults.length > 0">
+          <div class="burst-summary-banner">
+            <div class="burst-summary-text">
+              <strong>Idempotency Verification Passed</strong>
+              <span>Fired {{ burstResults.length }} simultaneous requests. Only 1 call reached the partner bank; {{ burstBlockedCount }} duplicate requests were blocked!</span>
+            </div>
+            <div class="burst-summary-badges">
+              <span class="badge-stat bank">Bank Calls: {{ burstSuccessCount }}</span>
+              <span class="badge-stat blocked">Duplicates Blocked: {{ burstBlockedCount }}</span>
+            </div>
+          </div>
+
+          <div class="burst-table-container">
+            <div class="burst-table-header">
+              <span>Req #</span>
+              <span>HTTP Status</span>
+              <span>Idempotency Outcome</span>
+              <span>Latency</span>
+            </div>
+            <div *ngFor="let item of burstResults" 
+                 class="burst-table-row" 
+                 [ngClass]="{'row-success': item.status === 'SUCCESS', 'row-conflict': item.status === 'CONFLICT', 'row-error': item.status === 'ERROR'}">
+              <span style="font-weight: 600; color: #475569;">REQ-{{ item.index.toString().padStart(2, '0') }}</span>
+              <div>
+                <span class="badge-pill" [ngClass]="item.statusCode === 200 ? 'status-200' : (item.statusCode === 409 ? 'status-409' : 'status-err')">
+                  {{ item.statusCode }} {{ item.status }}
+                </span>
+              </div>
+              <span style="color: #334155;">{{ item.message }}</span>
+              <span style="color: #64748b; font-size: 0.8rem;">{{ item.timeMs }} ms</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <!-- Single Payment Form -->
+          <div class="payment-card panel" style="padding: 24px; border: 1px solid #e2e8f0;">
+            <div class="header">
+              <h1>Single Payment Processor</h1>
+              <p>Execute individual transactions with a custom payload or test retry</p>
+            </div>
+            
+            <div class="form-group">
+              <label>Idempotency Key</label>
+              <div class="input-with-button">
+                <input type="text" [(ngModel)]="idempotencyKey" />
+                <button class="btn-icon-subtle" (click)="regenerateSingleKey()" title="Generate new key">
+                  <i-lucide name="refresh-cw" [size]="14"></i-lucide>
+                  <span>New</span>
+                </button>
+              </div>
+              <small>Ensures duplicate payments are not charged twice.</small>
+            </div>
+            
+            <div class="form-group">
+              <label>Customer ID</label>
+              <input type="text" [(ngModel)]="customerId" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>Amount</label>
+                <input type="number" [(ngModel)]="amount" min="1" />
+              </div>
+              <div class="form-group flex-1">
+                <label>Currency</label>
+                
+                <div class="custom-select" (click)="$event.stopPropagation(); isCurrencyDropdownOpen = !isCurrencyDropdownOpen" [class.open]="isCurrencyDropdownOpen">
+                  {{ currency }}
+                  <i-lucide name="chevron-down" class="chevron-icon" [size]="16"></i-lucide>
+                </div>
+                <div class="custom-options" *ngIf="isCurrencyDropdownOpen">
+                  <div class="custom-option" *ngFor="let c of currencies" (click)="selectCurrency(c)" [class.selected]="currency === c">
+                    {{ c }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="action-row">
+              <button class="submit-btn" type="button" (click)="submitPayment()" [disabled]="activeRequests > 0 || isBurstRunning">
+                <span *ngIf="activeRequests === 0">Pay Now</span>
+                <ng-container *ngIf="activeRequests > 0">
+                  <i-lucide name="loader-circle" class="spinner" [size]="18"></i-lucide>
+                  <span>Processing...</span>
+                </ng-container>
+              </button>
+
+              <button *ngIf="activeRequests > 0" class="cancel-btn" type="button" (click)="cancelPayment()">
+                <i-lucide name="x-circle" [size]="18"></i-lucide>
+                <span>Cancel</span>
+              </button>
+            </div>
+            
+            <!-- Response Card -->
+            <div *ngIf="response" 
+                 class="response-card" 
+                 [ngClass]="{'success': response.status === 'SUCCESS', 'failed': response.status === 'FAILED', 'unknown': response.status === 'UNKNOWN'}">
+              <h3>Payment {{ response.status }}</h3>
+              <div style="font-size: 0.85rem; margin-bottom: 8px;">
+                <strong>Message:</strong> {{ response.message || 'Transaction completed' }}
+              </div>
+              <pre>{{ response | json }}</pre>
+            </div>
+          </div>
+
+          <!-- Live Outgoing API Feed -->
+          <div class="panel" style="padding: 24px; border: 1px solid #e2e8f0;">
+            <div class="panel-head" style="padding: 0 0 16px 0;">
+              <div>
+                <h3>Live Client API Feed</h3>
+                <p>Real-time log of HTTP requests sent from this session</p>
+              </div>
+              <button class="btn-reset" (click)="apiLogs = []" style="font-size: 0.75rem;">Clear</button>
+            </div>
+            <div class="log-feed" style="max-height: 440px; overflow-y: auto;">
+              <div class="log-entry" *ngFor="let log of apiLogs">
+                <div class="log-dot" [ngStyle]="{'background': log.color}"></div>
+                <div class="log-text">
+                  <span style="font-size: 11px; color: #64748b; margin-right: 6px;">{{ log.time | date:'HH:mm:ss.SSS' }}</span>
+                  <strong style="color: #0f172a;">{{ log.method }}</strong> {{ log.url }}
+                  <div style="margin-top: 4px; font-size: 13px; color: #475569;">
+                    Status: <span [ngStyle]="{'color': log.color, 'font-weight': '600'}">{{ log.status }}</span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="apiLogs.length === 0" style="padding: 2rem; text-align: center; color: #64748b; font-size: 0.9rem;">
+                No requests sent yet. Fire a burst or click "Pay Now" to start.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= BANK SIMULATOR TAB ================= -->
+      <div *ngIf="activeTab === 'bank'" class="bank-simulator">
+        <div class="mode-grid">
+          <div *ngFor="let mode of bankModes" 
+               class="mode-card" 
+               [class.active]="activeBankMode === mode.id"
+               (click)="setBankMode(mode.id)">
+            <i-lucide [name]="mode.icon" class="mode-icon" [ngClass]="mode.colorClass" [size]="18"></i-lucide>
+            <div class="active-indicator"></div>
+            <div class="mode-name" [ngClass]="mode.colorClass">{{ mode.label }}</div>
+            <div class="mode-desc">{{ mode.description }}</div>
+          </div>
+        </div>
+        
+        <div class="panel" style="margin-top: 2rem; background: #fff; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+          <h3 style="margin-top: 0; color: #0f172a; font-weight: 600; font-size: 1.15rem;">Configured Bank Simulator Behavior</h3>
+          <p style="color: #64748b; margin-top: 0.5rem; font-size: 0.95rem;">
+            Currently active mode: <strong style="color: #2563eb;">{{ activeBankMode }}</strong>.
+          </p>
+
+          <div *ngIf="activeBankMode === 'TIMEOUT'" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid #e2e8f0;">
+            <label style="font-weight: 600; color: #334155;">Bank Response Timeout Delay: {{ bankDelayMs }} ms</label>
+            <div class="delay-slider-wrap">
+              <input type="range" min="1000" max="8000" step="500" [(ngModel)]="bankDelayMs" (change)="updateBankDelay()" />
+              <span style="font-size: 0.85rem; font-weight: 600; color: #2563eb;">{{ bankDelayMs / 1000 }}s</span>
+            </div>
+            <small style="margin-top: 6px; color: #64748b;">
+              In TIMEOUT mode, the gateway waits for the bank, records the payment as UNKNOWN, and returns 200 with UNKNOWN status.
+              The background <strong>Reconciliation Service</strong> then checks the bank transaction and automatically resolves it to SUCCESS!
+            </small>
+          </div>
+
+          <div *ngIf="activeBankMode === 'FAILURE'" style="margin-top: 1rem; color: #dc2626; font-size: 0.9rem;">
+            Payments will be rejected with status <code>FAILED</code>. This allows testing downstream rejection flows.
+          </div>
+
+          <div *ngIf="activeBankMode === 'SUCCESS'" style="margin-top: 1rem; color: #16a34a; font-size: 0.9rem;">
+            Standard happy path. The bank immediately authorizes the transaction with a unique <code>bankTransactionId</code>.
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= TIMELINE TAB ================= -->
+      <div *ngIf="activeTab === 'timeline'">
+        <div class="timeline-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 600;">System Event Timeline</h3>
+              <p style="margin: 4px 0 0 0; color: #64748b; font-size: 0.85rem;">Live stream of server-side idempotency locks, duplicate rejections, and background reconciliation</p>
+            </div>
+            <button class="btn-reset" (click)="fetchTimeline()">
+              <i-lucide name="refresh-cw" [size]="14"></i-lucide>
+              <span>Refresh</span>
+            </button>
+          </div>
+
+          <div *ngIf="timelineEvents.length > 0">
+            <div class="timeline-item" *ngFor="let item of timelineEvents">
+              <div class="timeline-bullet"></div>
+              <div class="timeline-content">
+                <div class="timeline-msg">{{ item.message }}</div>
+                <div class="timeline-ts">{{ item.time }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="timelineEvents.length === 0" style="padding: 3rem; text-align: center; color: #64748b;">
+            No events in timeline yet. Run a payment or burst test to generate events.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

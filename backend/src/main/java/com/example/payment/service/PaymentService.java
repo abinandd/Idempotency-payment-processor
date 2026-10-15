@@ -48,7 +48,14 @@ public class PaymentService {
             return handleDuplicate(idempotencyKey, payloadHash);
         }
 
-        PaymentResponse response = processNewPayment(request, idempotencyKey);
+        PaymentResponse response;
+        try {
+            response = processNewPayment(request, idempotencyKey);
+        } catch (RuntimeException ex) {
+            // nothing reached a final state; free the key so the client can safely retry
+            idempotencyService.releaseLock(idempotencyKey);
+            throw ex;
+        }
         idempotencyService.updateState(idempotencyKey, response, payloadHash);
         return new IdempotentPaymentResult(response, false);
     }

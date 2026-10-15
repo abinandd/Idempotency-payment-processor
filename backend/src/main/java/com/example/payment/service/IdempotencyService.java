@@ -49,6 +49,16 @@ public class IdempotencyService {
         }
     }
 
+    public void releaseLock(String idempotencyKey) {
+        String key = keyFor(idempotencyKey);
+        fallbackStore.remove(key);
+        try {
+            redisTemplate.delete(key);
+        } catch (Exception exception) {
+            // key expires via TTL
+        }
+    }
+
     public void updateState(String idempotencyKey, Object response, String payloadHash) {
         String key = keyFor(idempotencyKey);
         String value = COMPLETED_PREFIX + payloadHash + ":" + toJson(response);

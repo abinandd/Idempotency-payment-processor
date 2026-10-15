@@ -2,7 +2,9 @@ package com.example.payment.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,6 +32,19 @@ public class GlobalExceptionHandler {
                 "status", 400,
                 "error", "VALIDATION_FAILED",
                 "message", "Invalid request parameters"
+        ));
+    }
+
+    @ExceptionHandler({MissingRequestHeaderException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<Map<String, Object>> handleBadRequest(Exception ex) {
+        String message = ex instanceof MissingRequestHeaderException header
+                ? "Missing required header: " + header.getHeaderName()
+                : "Malformed request body";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                "timestamp", Instant.now().toString(),
+                "status", 400,
+                "error", "BAD_REQUEST",
+                "message", message
         ));
     }
 
